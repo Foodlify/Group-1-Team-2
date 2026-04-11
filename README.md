@@ -132,26 +132,44 @@ docker run -p 5000:5000 foodlify-backend
 
 ## 📡 API Endpoints
 
-### Auth
+### 1- Cart Management APIs
 
-* `POST /api/auth/register`
-* `POST /api/auth/login`
+#### 📦 Cart
 
-### Users
+* `GET    /api/v1/cart` → View cart
+* `DELETE /api/v1/cart` → Clear cart
+* `PUT    /api/v1/cart` → Modify entire cart
 
-* `GET /api/users`
-* `GET /api/users/:id`
+#### 🛍️ Cart Items
 
-### Restaurants
+* `POST   /api/v1/cart/items` → Add item to cart
+* `PUT    /api/v1/cart/items/:itemId` → Update quantity
+* `DELETE /api/v1/cart/items/:itemId` → Remove item
 
-* `GET /api/restaurants`
-* `POST /api/restaurants`
+#### 💳 Checkout
 
-### Orders
+* `POST   /api/v1/cart/checkout` → Checkout cart
 
-* `POST /api/orders`
-* `GET /api/orders/:id`
-* `PUT /api/orders/:id/status`
+---
+
+### 2- Authentication APIs
+
+#### 👤 Auth
+
+* `POST   /api/v1/auth/signup` → Register user
+* `POST   /api/v1/auth/login` → Login
+* `POST   /api/v1/auth/logout` → Logout
+
+#### 🔑 Password & Verification
+
+* `POST   /api/v1/auth/forgot-password` → Request password reset
+* `POST   /api/v1/auth/reset-password` → Reset password
+* `POST   /api/v1/auth/verify-otp` → Verify email/SMS OTP
+* `POST   /api/v1/auth/resend-otp` → Resend OTP
+
+#### 🌐 Social Auth
+
+* `POST   /api/v1/auth/social` → Social login
 
 ---
 
