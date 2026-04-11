@@ -14,7 +14,7 @@ Foodlify is a backend service designed to power a modern food delivery applicati
 
 * **Backend Framework:** Node.js / Express.js/ TypeScript
 * **Database:** PostgreSQL
-* **ORM/ODM:** Prisma
+* **ORM:** Prisma
 * **Authentication:** JWT
 * **Containerization:** Docker
 
@@ -97,10 +97,6 @@ cd foodlify-backend
 # Install dependencies
 npm install
 ```
-
-### 🔑 Environment Variables
-
-Create a `.env` file based on `.env.example`.
 
 ### ▶️ Run the App
 
