@@ -13,10 +13,10 @@ async function startServer() {
 
     app.get("/", async (req, res) => {
       try {
-        const result = await prisma.$queryRaw`SELECT NOW()`;
+        const result = await prisma.$queryRaw<{ now: Date }[]>`SELECT NOW()`;
         res.json({
           status: "OK",
-          dbTime: result.rows[0],
+          dbTime: result[0].now,
         });
       } catch (err: any) {
         res.status(500).json({ error: err.message });
