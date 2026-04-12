@@ -117,11 +117,7 @@ npm run test
 ### 🐳 Docker
 
 ```bash
-# Build image
-docker build -t foodlify-backend .
-
-# Run container
-docker run -p 5000:5000 foodlify-backend
+ docker-compose up --build
 ```
 
 ---
@@ -166,26 +162,6 @@ docker run -p 5000:5000 foodlify-backend
 #### 🌐 Social Auth
 
 * `POST   /api/v1/auth/social` → Social login
-
----
-
-## 🧪 Testing
-
-```bash
-npm run test
-```
-
----
-
-## 🐳 Docker Support
-
-```bash
-# Build image
-docker build -t foodlify-backend .
-
-# Run container
-docker run -p 5000:5000 foodlify-backend
-```
 
 ---
 
