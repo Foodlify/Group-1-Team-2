@@ -1,20 +1,19 @@
 import express from "express";
-import { Client } from "pg";
+import prisma from "./lib/prisma";
+import routes from "./routes";
 
 const app = express();
 
-const client = new Client({
-  connectionString: "postgresql://root:example@postgres:5432/mydb",
-});
+app.use(express.json());
 
 async function startServer() {
   try {
-    await client.connect();
-    console.log("✅ Connected to PostgreSQL");
+    await prisma.$connect();
+    console.log("✅ Connected to DB (Prisma)");
 
     app.get("/", async (req, res) => {
       try {
-        const result = await client.query("SELECT NOW()");
+        const result = await prisma.$queryRaw`SELECT NOW()`;
         res.json({
           status: "OK",
           dbTime: result.rows[0],
@@ -23,6 +22,8 @@ async function startServer() {
         res.status(500).json({ error: err.message });
       }
     });
+
+    app.use("/api/v1", routes);
 
     app.listen(3000, () => {
       console.log("🚀 Server running on port 3000");
