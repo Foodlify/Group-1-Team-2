@@ -20,6 +20,13 @@ Foodlify is a backend service designed to power a modern food delivery applicati
 
 ---
 
+## 🗃️ Database ERD
+
+The ERD covers the core entities: Users, Restaurants, Menus, Orders, Payments, and Cart management.
+
+![ERD](docs/erd.png)
+
+
 ## 📂 Project Structure
 
 ```
