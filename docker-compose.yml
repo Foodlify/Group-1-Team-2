@@ -1,23 +1,9 @@
 version: "3.8"
-
 services:
-  app:
-    build:
-      context: .
-      target: production
-    ports:
-      - "3000:3000"
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - .env
-    restart: always
-
   db:
     image: postgres:16-alpine
     env_file:
-      - .env
+      - .env 
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
