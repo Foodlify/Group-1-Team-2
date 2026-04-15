@@ -1,8 +1,10 @@
 import { Router } from "express";
+import { validation } from "../../middlewares/validation.middleware";
+import { addToCartSchema } from "./cart.validation";
 
 const router = Router();
 
-router.post("/items", (req, res) => {
+router.post("/items", validation(addToCartSchema), (req, res) => {
   res.json({ message: "Add to cart" });
 });
 
