@@ -1,12 +1,11 @@
 import { Router } from "express";
 import { validation } from "../../middlewares/validation.middleware";
 import { addToCartSchema } from "./cart.validation";
+import * as cartController from "./cart.controller";
 
 const router = Router();
 
-router.post("/items", validation(addToCartSchema), (req, res) => {
-  res.json({ message: "Add to cart" });
-});
+router.post("/items", validation(addToCartSchema), cartController.addItem);
 
 router.get("/", (req, res) => {
   res.json({ message: "Get cart" });
