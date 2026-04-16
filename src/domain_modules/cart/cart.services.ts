@@ -93,4 +93,13 @@ export const modifyCart = async (userId: number, menuItemId: number, quantity: n
     }
 
 export const clearCart = async (userId: number) => {
+  // get active cart for user
+  const cart = await cartRepo.findActiveCartByUserId(userId);
+  if (!cart) {
+    throw new AppError("No active cart found for user", 404);
+  }
+  // clear cart items
+  await cartRepo.clearCartItems(cart.id);
+  // return cleared cart
+  return await cartRepo.getCartByUserId(userId); 
 };

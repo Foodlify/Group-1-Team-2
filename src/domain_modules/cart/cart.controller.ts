@@ -70,7 +70,6 @@ export const clearCart = asyncHandler(async (req: Request, res: Response) => {
     const userId = Number(req.headers["x-user-id"]);
     // TODO: Implement the logic to clear the cart using cartService
     const cart = await cartService.clearCart(userId);
-
     return res.status(200).json({
         message: "Cart cleared successfully",
         data : { cart }

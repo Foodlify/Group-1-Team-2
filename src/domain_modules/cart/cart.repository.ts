@@ -122,3 +122,9 @@ export const createCartItem = async (
         },
     });
 };
+
+export const clearCartItems = async (cartId: number) => {
+    return await prisma.cartItem.deleteMany({
+        where: { cart_id: cartId },
+    });
+};
