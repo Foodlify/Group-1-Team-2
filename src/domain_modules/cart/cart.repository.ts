@@ -48,3 +48,20 @@ export const getCartWithItems = async (cartId: number) => {
     },
   });
 };
+
+
+export const viewCart = async (userId :number) =>{
+  return prisma.cart.findFirst({
+    where:{
+      user_id:userId,
+      status:"active"
+    },
+    include:{
+      items:{
+        include:{
+          menuItem:true
+        }
+      }
+    }
+  })
+}

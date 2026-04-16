@@ -7,8 +7,7 @@ const router = Router();
 
 router.post("/items", validation(addToCartSchema), cartController.addItem);
 
-router.get("/", (req, res) => {
-  res.json({ message: "Get cart" });
-});
+
+router.get("/:userId" , cartController.viewCart)
 
 export default router;
