@@ -1,4 +1,5 @@
 import * as cartRepo from "./cart.repository";
+import AppError from "../../utils/appError";
 
 export const addToCart = async (
   userId: number,
@@ -43,7 +44,6 @@ export const viewCart= async (userId:number)=>{
       itemCount:0
     }
   }
-
   const formattedItems = cart.items.map(item=>({
     itemId:item.id,
     productId: item.menuItem.id,
@@ -65,3 +65,32 @@ export const viewCart= async (userId:number)=>{
 
 
 }
+
+export const modifyCart = async (userId: number, menuItemId: number, quantity: number) => {
+       // get menu item 
+       const menuItem = await cartRepo.findMenuItemById(menuItemId);
+
+        if (!menuItem) {
+            throw new AppError("Menu item not found now ",404);
+        }
+        // get or create cart for user
+        let cart = await cartRepo.getCartByUserId(userId);
+        if (!cart) {
+            cart = await cartRepo.createCart(userId);
+        }
+        // check if item already in cart
+        const existingItem = await cartRepo.getCartItem(cart.id, menuItemId);
+        const finalQuantity = existingItem ? existingItem.quantity + quantity : quantity;
+
+        if (menuItem.stock < finalQuantity) {
+            throw new AppError("Not enough stock available", 400);
+        }
+        // add or update cart item
+        await cartRepo.addOrUpdateCartItem(cart.id, menuItemId, finalQuantity, menuItem.price);
+        // return updated cart
+        return await cartRepo.getCartByUserId(userId);
+
+    }
+
+export const clearCart = async (userId: number) => {
+};

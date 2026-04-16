@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as cartService from "./cart.services";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 export const addItem = async (
   req: Request,
@@ -52,3 +53,29 @@ try {
     return res.status(500).json({ message: "Internal Server Error" });
 }
 }
+
+export const modifyCart = asyncHandler(async (req: Request, res: Response) => {
+    const userId = Number(req.headers["x-user-id"]);
+    const { menuItemId, quantity } = req.body;
+
+    const cart = await cartService.modifyCart(userId, menuItemId, quantity);
+
+    return res.status(200).json({
+        message: "Cart modified successfully",
+        data: { cart }
+    });
+});
+
+export const clearCart = asyncHandler(async (req: Request, res: Response) => {
+    const userId = Number(req.headers["x-user-id"]);
+    // TODO: Implement the logic to clear the cart using cartService
+    const cart = await cartService.clearCart(userId);
+
+    return res.status(200).json({
+        message: "Cart cleared successfully",
+        data : { cart }
+    });
+});
+
+
+

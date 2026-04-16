@@ -11,3 +11,12 @@ export const addToCartSchema = z.object({
     .int("quantity must be an integer")
     .positive("quantity must be at least 1"),
 });
+
+
+export const modifyCartSchema = z.object({
+  menuItemId: z.number().int().positive(),
+  quantity: z.number().int().positive(),
+});
+
+export const clearCartSchema = z.object({
+});

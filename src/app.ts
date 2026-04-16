@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import routes from "./routes/index";
 import prisma from "./lib/prisma";
 import { asyncHandler } from "./utils/asyncHandler";
-
+import globalErrorHandler from "./middlewares/globalError.middleware";
 const app = express();
 
 // ================= Middleware =================
@@ -27,12 +27,6 @@ app.use((req: Request, res: Response) => {
   });
 });
 
-app.use((err: any, req: Request, res: Response, next: any) => {
-  console.error(err);
-
-  res.status(err.status || 500).json({
-    message: err.message || "Internal Server Error",
-  });
-});
+app.use(globalErrorHandler);
 
 export default app;
