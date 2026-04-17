@@ -1,6 +1,5 @@
 import * as cartRepo from "./cart.repository";
 import AppError from "../../utils/appError";
-import { cart } from "@prisma/client";
 
 export const addToCart = async (
   userId: number,
@@ -75,7 +74,7 @@ export const modifyCart = async (userId: number, menuItemId: number, quantity: n
             throw new AppError("Menu item not found now ",404);
         }
         // get or create cart for user
-        let cart: cart|null= await cartRepo.getCartByUserId(userId);
+        let cart = await cartRepo.getCartByUserId(userId);
         if (!cart) {
             cart = await cartRepo.createCart(userId);
         }
