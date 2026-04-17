@@ -1,5 +1,6 @@
 import * as cartRepo from "./cart.repository";
 import AppError from "../../utils/appError";
+import { cart } from "@prisma/client";
 
 export const addToCart = async (
   userId: number,
@@ -74,32 +75,19 @@ export const modifyCart = async (userId: number, menuItemId: number, quantity: n
             throw new AppError("Menu item not found now ",404);
         }
         // get or create cart for user
-        let cart = await cartRepo.getCartByUserId(userId);
+        let cart: cart|null= await cartRepo.getCartByUserId(userId);
         if (!cart) {
             cart = await cartRepo.createCart(userId);
         }
-        // check if item already in cart
-        const existingItem = await cartRepo.getCartItem(cart.id, menuItemId);
-        const finalQuantity = existingItem ? existingItem.quantity + quantity : quantity;
-
-        if (menuItem.stock < finalQuantity) {
+        if (menuItem.stock < quantity) {
             throw new AppError("Not enough stock available", 400);
         }
         // add or update cart item
-        await cartRepo.addOrUpdateCartItem(cart.id, menuItemId, finalQuantity, menuItem.price);
+        await cartRepo.addOrUpdateCartItem(cart.id, menuItemId, quantity, menuItem.price);
         // return updated cart
         return await cartRepo.getCartByUserId(userId);
-
     }
 
-export const clearCart = async (userId: number) => {
-  // get active cart for user
-  const cart = await cartRepo.findActiveCartByUserId(userId);
-  if (!cart) {
-    throw new AppError("No active cart found for user", 404);
-  }
-  // clear cart items
-  await cartRepo.clearCartItems(cart.id);
-  // return cleared cart
-  return await cartRepo.getCartByUserId(userId); 
+export const removeItem = async () => {
+  
 };

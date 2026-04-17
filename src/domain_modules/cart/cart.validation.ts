@@ -18,5 +18,5 @@ export const modifyCartSchema = z.object({
   quantity: z.number().int().positive(),
 });
 
-export const clearCartSchema = z.object({
+export const removeItemSchema = z.object({
 });
