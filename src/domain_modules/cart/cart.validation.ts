@@ -19,4 +19,7 @@ export const modifyCartSchema = z.object({
 });
 
 export const removeItemSchema = z.object({
+  menuItemId: z.string().transform((val: string) => Number(val)).pipe(
+    z.number().int().positive()
+  )
 });

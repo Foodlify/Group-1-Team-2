@@ -67,6 +67,15 @@ export const modifyCart = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const removeItem = asyncHandler(async (req: Request, res: Response) => {
+    const userId = Number(req.headers["x-user-id"]);
+    const  menuItemId  = Number(req.params.menuItemId);
+
+   const cart = await cartService.removeItem(userId, menuItemId);
+
+    return res.status(200).json({
+        message: "Item removed from cart successfully",
+        data: { cart }
+    });
    
 });
 

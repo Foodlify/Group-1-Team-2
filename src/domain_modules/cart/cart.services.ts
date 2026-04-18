@@ -87,6 +87,19 @@ export const modifyCart = async (userId: number, menuItemId: number, quantity: n
         return await cartRepo.getCartByUserId(userId);
     }
 
-export const removeItem = async () => {
-  
+export const removeItem = async (userId: number, menuItemId: number) => {
+  // get cart for user
+  const cart = await cartRepo.getCartByUserId(userId);
+  if (!cart) {
+      throw new AppError("Cart not found", 404);
+  }
+  // check if item exists in cart
+  const cartItem = await cartRepo.findCartItem(cart.id, menuItemId);
+  if (!cartItem) {
+      throw new AppError("Item not found in cart", 404);
+  }
+  // remove item from cart
+  await cartRepo.removeCartItem(cart.id, menuItemId);
+  // return updated cart
+  return await cartRepo.getCartByUserId(userId);
 };

@@ -128,3 +128,20 @@ export const clearCartItems = async (cartId: number) => {
         where: { cart_id: cartId },
     });
 };
+
+export const findCartItem = async (cartId: number, menuItemId: number) => {
+  return await prisma.cartItem.findFirst({
+    where: {
+      cart_id: cartId,
+      menu_item_id: menuItemId,
+    },
+  });
+};
+
+export const removeCartItem = async (cartId: number, menuItemId: number) => {
+    return await prisma.cartItem.delete({
+        where: {
+            cart_id_menu_item_id: { cart_id: cartId, menu_item_id: menuItemId },
+        },
+    });
+}
