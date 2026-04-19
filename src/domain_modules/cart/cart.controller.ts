@@ -1,4 +1,4 @@
-import { Request, Response,NextFunction  } from "express";
+import { Request, Response } from "express";
 import * as cartService from "./cart.services";
 import { asyncHandler } from "../../utils/asyncHandler";
 
@@ -17,7 +17,6 @@ export const addItem = asyncHandler(async (req: Request, res: Response) => {
     data: updatedCart,
   });
 });
-
 
 export const viewCart = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.userId as number;
@@ -65,7 +64,6 @@ export const clearCart = asyncHandler(async (req: Request, res: Response) => {
         data: { cart }
     });
 });
-
 
 export const updateCartItemQuantity = asyncHandler(async (req, res) => {
   const userId = req.userId as number;

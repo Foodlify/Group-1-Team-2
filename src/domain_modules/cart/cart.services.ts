@@ -89,12 +89,12 @@ export const removeItem = async (userId: number, menuItemId: number) => {
     throw new AppError("Cart not found", 404);
   }
 
-  const cartItem = await cartRepo.getCartItem(cart.id, menuItemId);
+  const cartItem = await cartRepo.findCartItem(cart.id, menuItemId);
   if (!cartItem) {
     throw new AppError("Item not found in cart", 404);
   }
 
-  await cartRepo.deleteCartItem(cart.id, menuItemId);
+  await cartRepo.removeCartItem(cart.id, menuItemId);
 
   return await cartRepo.getCartByUserId(userId);
 };
@@ -112,92 +112,51 @@ export const clearCart = async (userId: number) => {
 
 
 type UpdateMode = "set" | "increment";
-export const upsertCartItem = async(
+export const upsertCartItem = async (
+  userId: number,
+  menu_item_id: number,
+  quantity: number,
+  mode: UpdateMode = "set"
+) => {
 
-  userId : number,
+  const menuItem = await cartRepo.findMenuItemById(menu_item_id);
 
-  menu_item_id : number,
+  if (!menuItem) {
+    throw new AppError("Menu item not found", 404);
+  }
 
-  quantity : number,
+  let cart: Cart | null = await cartRepo.getCartByUserId(userId);
 
-  mode:UpdateMode = "set"
+  if (!cart) {
+    cart = await cartRepo.createCart(userId);
+  }
 
-  
+  const existingItem = await cartRepo.findCartItem(cart.id, menu_item_id);
 
-)=>{
+  let finalQuantity: number;
 
-  const menuItem = await cartRepo.findMenuItemById(menu_item_id);
+  if (mode === "set") {
+    finalQuantity = quantity
+  } else {
+    finalQuantity = existingItem ? existingItem.quantity + quantity : quantity;
+  }
 
-  if(!menuItem){
+  if (finalQuantity <= 0) {
+    await cartRepo.removeCartItem(cart.id, menu_item_id)
 
-    throw new AppError("Menu item not found" , 404);
+    return await cartRepo.getCartWithItems(cart.id)
+  }
 
-  }
+  if (menuItem.stock < finalQuantity) {
+    throw new AppError("Not enough stock available", 400);
+  }
 
-  
+  await cartRepo.addOrUpdateCartItem(
+    cart.id,
+    menu_item_id,
+    finalQuantity,
+    menuItem.price
+  );
 
-  let cart:Cart|null = await cartRepo.getCartByUserId(userId);
-
-  if(!cart){
-
-    cart = await cartRepo.createCart(userId);
-
-  }
-
-  
-
-  const existingItem = await cartRepo.getCartItem(cart.id , menu_item_id);
-
-  
-
-  let finalQuantity : number;
-
-  
-
-  if(mode === "set"){
-
-    finalQuantity = quantity
-
-  }else{
-
-    finalQuantity = existingItem ? existingItem.quantity + quantity :quantity;
-
-  }
-
-  
-
-  if(finalQuantity <=0 ){
-
-    await cartRepo.deleteCartItem(cart.id,menu_item_id)
-
-    return await cartRepo.getCartWithItems(cart.id)
-
-  }
-
-  
-
-  if(menuItem.stock < finalQuantity){
-
-        throw new AppError("Not enough stock available", 400);
-
-  }
-
-  
-
-    await cartRepo.addOrUpdateCartItem(
-
-    cart.id,
-
-    menu_item_id,
-
-    finalQuantity,
-
-    menuItem.price
-
-  );
-
-  return await cartRepo.getCartWithItems(cart.id);
-
-  
-
+  return await cartRepo.getCartWithItems(cart.id);
 }
