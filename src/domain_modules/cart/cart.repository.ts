@@ -49,30 +49,6 @@ export const getCartWithItems = async (cartId: number) => {
   });
 };
 
-
-export const viewCart = async (userId :number) =>{
-  return prisma.cart.findFirst({
-    where:{
-      user_id:userId,
-      status:"active"
-    },
-    include:{
-      items:{
-        include:{
-          menuItem:true
-        }
-      }
-    }
-  })
-}
-
-
-// export const getMenuItem = async (menuItemId: number) => {
-//     return await prisma.menuItem.findUnique({
-//         where: { id: menuItemId },
-//     });
-// };
-
 export const getCartByUserId = async (userId: number) => {
     return await prisma.cart.findFirst({
         where: { 
@@ -90,15 +66,6 @@ export const getCartByUserId = async (userId: number) => {
 };
 
 
-
-export const getCartItem = async (cartId: number, menuItemId: number) => {
-    return await prisma.cartItem.findFirst({
-        where: {
-            cart_id: cartId,
-            menu_item_id: menuItemId,
-        },
-    });
-};
 
 export const updateCartItem = async (cartItemId: number, quantity: number) => {
     return await prisma.cartItem.update({

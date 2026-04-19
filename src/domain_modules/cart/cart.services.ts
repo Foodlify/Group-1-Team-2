@@ -33,7 +33,7 @@ export const addToCart = async (
 
 export const viewCart = async (userId: number) => {
 
-  const cart = await cartRepo.viewCart(userId);
+  const cart = await cartRepo.getCartByUserId(userId);
 
   if (!cart) {
     return {
