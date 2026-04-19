@@ -16,4 +16,6 @@ router.delete("/items/:menuItemId", authenticate, validation(cartSchemas.removeI
 
 router.delete("/", authenticate, cartController.clearCart);
 
+router.patch("/item" , cartController.updateCartItemQuantity)
+
 export default router;

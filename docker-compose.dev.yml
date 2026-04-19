@@ -17,3 +17,5 @@ services:
       - .env  
     environment:
       - NODE_ENV=development
+      - CHOKIDAR USEPOLLING=true
+      - WATCHPACK POLLING=true
