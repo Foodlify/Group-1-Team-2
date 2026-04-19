@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response,NextFunction  } from "express";
 import * as cartService from "./cart.services";
 import { asyncHandler } from "../../utils/asyncHandler";
 
@@ -64,4 +64,22 @@ export const clearCart = asyncHandler(async (req: Request, res: Response) => {
         message: "Cart cleared successfully",
         data: { cart }
     });
+});
+
+
+export const updateCartItemQuantity = asyncHandler(async (req, res) => {
+  const userId = req.userId;
+  const { menuItemId, quantity, mode } = req.body;
+
+  const cart = await cartService.upsertCartItemQuantity(
+    userId,
+    menuItemId,
+    quantity,
+    mode
+  );
+
+  res.json({
+    status: "success",
+    data: cart,
+  });
 });
