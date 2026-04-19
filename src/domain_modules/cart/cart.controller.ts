@@ -79,5 +79,14 @@ export const removeItem = asyncHandler(async (req: Request, res: Response) => {
    
 });
 
+export const clearCart = asyncHandler(async (req: Request, res: Response) => {
+    // Hardcode a userId for now until authentication is implemented
+    const userId = 1;
 
+    const cart = await cartService.clearCart(userId);
 
+    return res.status(200).json({
+        message: "Cart cleared successfully",
+        data: { cart }
+    });
+});

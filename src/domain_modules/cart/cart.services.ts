@@ -81,25 +81,35 @@ export const modifyCart = async (userId: number, menuItemId: number, quantity: n
         if (menuItem.stock < quantity) {
             throw new AppError("Not enough stock available", 400);
         }
-        // add or update cart item
+        
         await cartRepo.addOrUpdateCartItem(cart.id, menuItemId, quantity, menuItem.price);
-        // return updated cart
+        
         return await cartRepo.getCartByUserId(userId);
     }
 
 export const removeItem = async (userId: number, menuItemId: number) => {
-  // get cart for user
   const cart = await cartRepo.getCartByUserId(userId);
   if (!cart) {
       throw new AppError("Cart not found", 404);
   }
-  // check if item exists in cart
+
   const cartItem = await cartRepo.findCartItem(cart.id, menuItemId);
   if (!cartItem) {
       throw new AppError("Item not found in cart", 404);
   }
-  // remove item from cart
+
   await cartRepo.removeCartItem(cart.id, menuItemId);
-  // return updated cart
+  
+  return await cartRepo.getCartByUserId(userId);
+};
+
+export const clearCart = async (userId: number) => {
+  const cart = await cartRepo.getCartByUserId(userId);
+  if (!cart) {
+      throw new AppError("Cart not found", 404);
+  }
+  
+  await cartRepo.clearCartItems(cart.id);
+  
   return await cartRepo.getCartByUserId(userId);
 };

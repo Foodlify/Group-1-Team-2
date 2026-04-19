@@ -12,7 +12,9 @@ router.get("/:userId", cartController.viewCart)
 
 
 router.put("/", validation(cartSchemas.modifyCartSchema), cartController.modifyCart);
-//remove item from cart
+
 router.delete("/items/:menuItemId", validation(cartSchemas.removeItemSchema), cartController.removeItem);
+
+router.delete("/", cartController.clearCart);
 
 export default router;
