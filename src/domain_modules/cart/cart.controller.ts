@@ -68,10 +68,10 @@ export const clearCart = asyncHandler(async (req: Request, res: Response) => {
 
 
 export const updateCartItemQuantity = asyncHandler(async (req, res) => {
-  const userId = req.userId;
+  const userId = req.userId as number;
   const { menuItemId, quantity, mode } = req.body;
 
-  const cart = await cartService.upsertCartItemQuantity(
+  const cart = await cartService.upsertCartItem(
     userId,
     menuItemId,
     quantity,
