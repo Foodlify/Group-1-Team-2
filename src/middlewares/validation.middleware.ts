@@ -13,7 +13,7 @@ export const validation = (schema: ZodSchema) => {
         .join(", ");
 
       const error = new Error(errorMessage) as any;
-      error.status = 400;
+      error.statusCode = 400;
 
       return next(error);
     }

@@ -4,7 +4,7 @@ import { asyncHandler } from "../../utils/asyncHandler";
 
 export const addItem = asyncHandler(async (req: Request, res: Response) => {
   const { menuItemId, quantity } = req.body;
-  const userId = req.userId;
+  const userId = req.userId as number;
 
   const updatedCart = await cartService.addToCart(
     userId,
@@ -20,7 +20,7 @@ export const addItem = asyncHandler(async (req: Request, res: Response) => {
 
 
 export const viewCart = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.userId;
+  const userId = req.userId as number;
 
   if (!userId || isNaN(userId)) {
     return res.status(400).json({ message: "Invalid User ID" });
@@ -31,7 +31,7 @@ export const viewCart = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const modifyCart = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId;
+    const userId = req.userId as number;
     const { menuItemId, quantity } = req.body;
 
     const cart = await cartService.modifyCart(userId, menuItemId, quantity);
@@ -43,7 +43,7 @@ export const modifyCart = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const removeItem = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId;
+    const userId = req.userId as number;
     const  menuItemId  = Number(req.params.menuItemId);
 
    const cart = await cartService.removeItem(userId, menuItemId);
@@ -56,7 +56,7 @@ export const removeItem = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const clearCart = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId;
+    const userId = req.userId as number;
 
     const cart = await cartService.clearCart(userId);
 
