@@ -65,36 +65,6 @@ export const clearCart = asyncHandler(async (req: Request, res: Response) => {
     });
 });
 
-<<<<<<< HEAD
-export const updateCartItemQuantity = asyncHandler(async (req, res) => {
-  const userId = req.userId as number;
-  const { menuItemId, quantity, mode } = req.body;
-
-  const cart = await cartService.upsertCartItem(
-    userId,
-    menuItemId,
-    quantity,
-    mode
-  );
-=======
-// export const updateCartItemQuantity = asyncHandler(async (req, res) => {
-//   const userId = req.userId as number;
-//   const { menuItemId, quantity, mode } = req.body;
-
-//   const cart = await cartService.upsertCartItem(
-//     userId,
-//     menuItemId,
-//     quantity,
-//     mode
-//   );
-
-//   res.json({
-//     status: "success",
-//     data: cart,
-//   });
-// });
->>>>>>> cd412a8 (Improve cart update logic and unify response format)
-
 
 export const updateCartItem = asyncHandler(
   async (req: Request, res: Response) => {

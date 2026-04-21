@@ -1,6 +1,7 @@
 import * as cartRepo from "./cart.repository";
 import AppError from "../../utils/appError";
 import { Cart } from "@prisma/client";
+import { buildCartResponse } from "../../shared/cart.mapper";
 
 export const addToCart = async (
   userId: number,
@@ -44,24 +45,7 @@ export const viewCart = async (userId: number) => {
       itemCount: 0
     }
   }
-  const formattedItems = cart.items.map(item => ({
-    itemId: item.id,
-    productId: item.menuItem.id,
-    name: item.menuItem.name,
-    price: item.menuItem.price,
-    quantity: item.quantity,
-    itemTotal: item.quantity * item.menuItem.price
-  }));
-
-  const totalPrice = formattedItems.reduce((acc, item) => acc + item.itemTotal, 0);
-
-  return {
-    cartId: cart.id,
-    status: cart.status,
-    items: formattedItems,
-    totalPrice: totalPrice,
-    itemCount: formattedItems.length
-  }
+return buildCartResponse(cart)
 }
 
 export const modifyCart = async (userId: number, menuItemId: number, quantity: number) => {
