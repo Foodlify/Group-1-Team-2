@@ -3,9 +3,10 @@ import routes from "./routes/index";
 import prisma from "./lib/prisma";
 import { asyncHandler } from "./utils/asyncHandler";
 import globalErrorHandler from "./middlewares/globalError.middleware";
-import swaggerUi from "swagger-ui-express";
+import swaggerUi from "swagger-ui-express"
 import YAML from "yamljs";
 import path from 'path';
+
 
 
 const app = express();
