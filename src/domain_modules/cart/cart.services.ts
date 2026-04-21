@@ -111,52 +111,71 @@ export const clearCart = async (userId: number) => {
 };
 
 
-type UpdateMode = "set" | "increment";
-export const upsertCartItem = async (
+export const updateCartItem = async (
   userId: number,
-  menu_item_id: number,
+  menuItemId: number,
   quantity: number,
-  mode: UpdateMode = "set"
+  mode: "set" | "increment" | "decrement"
 ) => {
 
-  const menuItem = await cartRepo.findMenuItemById(menu_item_id);
-
-  if (!menuItem) {
-    throw new AppError("Menu item not found", 404);
-  }
-
-  let cart: Cart | null = await cartRepo.getCartByUserId(userId);
+  let cart = await cartRepo.findActiveCartByUserId(userId);
 
   if (!cart) {
     cart = await cartRepo.createCart(userId);
   }
 
-  const existingItem = await cartRepo.findCartItem(cart.id, menu_item_id);
+  const cartId = cart.id;
 
-  let finalQuantity: number;
+  const item = await cartRepo.findCartItem(cartId, menuItemId);
+  const menuItem = await cartRepo.findMenuItemById(menuItemId);
 
-  if (mode === "set") {
-    finalQuantity = quantity
-  } else {
-    finalQuantity = existingItem ? existingItem.quantity + quantity : quantity;
+  if (!menuItem) {
+    throw new Error("Menu item not found");
   }
 
-  if (finalQuantity <= 0) {
-    await cartRepo.removeCartItem(cart.id, menu_item_id)
+  let newQuantity = item ? item.quantity : 0;
 
-    return await cartRepo.getCartWithItems(cart.id)
+  switch (mode) {
+    case "increment":
+      newQuantity += quantity;
+      break;
+
+    case "decrement":
+      newQuantity -= quantity;
+      break;
+
+    case "set":
+    default:
+      newQuantity = quantity;
+      break;
   }
 
-  if (menuItem.stock < finalQuantity) {
-    throw new AppError("Not enough stock available", 400);
-  }
-
-  await cartRepo.addOrUpdateCartItem(
-    cart.id,
-    menu_item_id,
-    finalQuantity,
-    menuItem.price
+if (newQuantity > menuItem.stock) {
+  throw new AppError(
+    `Not enough stock for "${menuItem.name}". Only ${menuItem.stock} left in stock`,400
   );
-
-  return await cartRepo.getCartWithItems(cart.id);
 }
+
+  
+  if (newQuantity <= 0) {
+    await cartRepo.removeCartItem(cartId, menuItemId);
+    return { message: "Item removed from cart" };
+  }
+
+
+  if (!item) {
+    return cartRepo.createCartItem(
+      cartId,
+      menuItemId,
+      newQuantity,
+      menuItem.price
+    );
+  }
+
+  
+  await cartRepo.updateCartItem(item.id, newQuantity);
+
+
+   const updatedCart = await cartRepo.getCartByUserId(userId);
+   return buildCartResponse(updatedCart);
+};

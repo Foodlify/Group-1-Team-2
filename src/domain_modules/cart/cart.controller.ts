@@ -65,6 +65,7 @@ export const clearCart = asyncHandler(async (req: Request, res: Response) => {
     });
 });
 
+<<<<<<< HEAD
 export const updateCartItemQuantity = asyncHandler(async (req, res) => {
   const userId = req.userId as number;
   const { menuItemId, quantity, mode } = req.body;
@@ -75,9 +76,54 @@ export const updateCartItemQuantity = asyncHandler(async (req, res) => {
     quantity,
     mode
   );
+=======
+// export const updateCartItemQuantity = asyncHandler(async (req, res) => {
+//   const userId = req.userId as number;
+//   const { menuItemId, quantity, mode } = req.body;
 
-  res.json({
-    status: "success",
-    data: cart,
-  });
-});
+//   const cart = await cartService.upsertCartItem(
+//     userId,
+//     menuItemId,
+//     quantity,
+//     mode
+//   );
+
+//   res.json({
+//     status: "success",
+//     data: cart,
+//   });
+// });
+>>>>>>> cd412a8 (Improve cart update logic and unify response format)
+
+
+export const updateCartItem = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.userId as number;
+    const { menuItemId, quantity, mode = "set" } = req.body;
+
+  
+    if (!menuItemId || quantity === undefined) {
+      return res.status(400).json({
+        message: "menuItemId and quantity are required",
+      });
+    }
+
+    if (quantity < 0) {
+      return res.status(400).json({
+        message: "Quantity cannot be negative",
+      });
+    }
+
+    const result = await cartService.updateCartItem(
+      userId,
+      Number(menuItemId),
+      Number(quantity),
+      mode
+    );
+
+    return res.status(200).json({
+      status: "success",
+      data: result,
+    });
+  }
+);
