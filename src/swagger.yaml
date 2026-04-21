@@ -1,0 +1,272 @@
+openapi: 3.0.0
+info:
+  title: Food Delivery API
+  version: 1.0.0
+  description: Food delivery app
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /api/v1/cart/:
+    get:
+      summary: View cart
+      description: Get all items in the authenticated user's active cart
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Cart retrieved successfully
+          content:
+            application/json:
+              example:
+                cartId: 10
+                status: "ACTIVE"
+                items:
+                  - itemId: 1
+                    productId: 5
+                    name: "Burger"
+                    price: 49.99
+                    quantity: 2
+                    itemTotal: 99.98
+                totalPrice: 99.98
+                itemCount: 1
+        '400':
+          description: Invalid User ID
+          content:
+            application/json:
+              example:
+                message: "Invalid User ID"
+        '401':
+          description: Unauthorized - Missing or invalid token
+          content:
+            application/json:
+              example:
+               message: Unauthorized - Missing or invalid token
+              
+
+    put:
+      summary: Modify cart item quantity
+      description: Update the quantity of an existing item in the cart. Creates a new cart if none exists.
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - menuItemId
+                - quantity
+              properties:
+                menuItemId:
+                  type: integer
+                  example: 5
+                quantity:
+                  type: integer
+                  minimum: 1
+                  example: 3
+      responses:
+        '200':
+          description: Cart modified successfully
+          content:
+            application/json:
+              example:
+                  message:
+                    example: "Cart modified successfully"
+                  data:
+                    cart:
+                      cartId: 10
+                      status: "ACTIVE"
+                      items:
+                        - itemId: 1
+                          productId: 5
+                          name: "Burger"
+                          price: 49.99
+                          quantity: 3
+                          itemTotal: 149.97
+                      totalPrice: 149.97
+                      itemCount: 1
+
+        '400':
+          description: Bad Request - Invalid input or not enough stock
+          content:
+            application/json:
+              examples:
+                invalidInput:
+                  value:
+                    message: "quantity must be a positive number"
+                notEnoughStock:
+                  value:
+                    message: "Not enough stock available"
+        '401':
+          description: Unauthorized - Missing or invalid token
+          content:
+            application/json:
+              example:
+                message: " Unauthorized - Missing or invalid token "
+              
+        '404':
+          description: Menu item not found
+          content:
+            application/json:
+              example:
+                message: "Menu item not found now"
+
+    delete:
+      summary: Clear cart
+      description: Remove all items from the authenticated user's cart
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Cart cleared successfully
+          content:
+            application/json:
+              example: 
+                message: "Cart cleared successfully"
+                data:
+                  cart:
+                    cartId: 10
+                    status: "ACTIVE"
+                    items: []
+                    totalPrice: 0
+                    itemCount: 0
+                  
+        '401':
+          description: Unauthorized - Missing or invalid token
+          content:
+            application/json:
+              example:
+                message: "Unauthorized - Missing or invalid token"
+ 
+        '404':
+          description: Cart not found
+          content:
+            application/json:
+              example:
+                message: "Cart not found"
+
+  /api/v1/cart/items:
+    post:
+      summary: Add item to cart
+      description: Add a new menu item to the cart. Creates a new cart if none exists.
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - menuItemId
+                - quantity
+              properties:
+                menuItemId:
+                  type: integer
+                  example: 5
+                quantity:
+                  type: integer
+                  minimum: 1
+                  example: 2
+      responses:
+        '201':
+          description: Item added to cart successfully
+          content:
+            application/json:
+              example:
+                message: "Item added to cart successfully"
+                data:
+                  cart:
+                    cartId: 10
+                    status: "ACTIVE"
+                    items:
+                      - itemId: 1
+                        productId: 5
+                        name: "Burger"
+                        price: 49.99
+                        quantity: 2
+                        itemTotal: 99.98
+                    totalPrice: 99.98
+                    itemCount: 1
+ 
+        '400':
+          description: Bad Request - Invalid input or not enough stock
+          content:
+            application/json:
+              examples:
+                invalidInput:
+                  value:
+                    message: "menuItemId must be a positive number"
+                notEnoughStock:
+                  value:
+                    message: "Not enough product stock available"
+ 
+        '401':
+          description: Unauthorized - Missing or invalid token
+          content:
+            application/json:
+              example:
+                message: "Unauthorized - Missing or invalid token"
+ 
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              example:
+                message: "Product not found"
+ 
+  /api/v1/cart/items/{menuItemId}:
+    delete:
+      summary: Remove item from cart
+      description: Remove a specific menu item from the authenticated user's cart
+      tags:
+        - Cart
+      parameters:
+        - in: path
+          name: menuItemId
+          required: true
+          schema:
+            type: integer
+          example: 5
+      responses:
+        '200':
+          description: Item removed from cart successfully
+          content:
+            application/json:
+              example:
+                message: "Item removed from cart successfully"
+                data:
+                  cart:
+                    cartId: 10
+                    status: "ACTIVE"
+                    items:
+                      - itemId: 2
+                        productId: 6
+                        name: "Pizza"
+                        price: 79.99
+                        quantity: 1
+                        itemTotal: 79.99
+                    totalPrice: 79.99
+                    itemCount: 1
+ 
+        '401':
+          description: Unauthorized - Missing or invalid token
+          content:
+            application/json:
+              example:
+                message: "Unauthorized - Missing or invalid token"
+ 
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              examples:
+                cartNotFound:
+                  value:
+                    message: "Cart not found"
+                itemNotFound:
+                  value:
+                    message: "Item not found in cart"

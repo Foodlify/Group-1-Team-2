@@ -3,6 +3,11 @@ import routes from "./routes/index";
 import prisma from "./lib/prisma";
 import { asyncHandler } from "./utils/asyncHandler";
 import globalErrorHandler from "./middlewares/globalError.middleware";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
+import path from 'path';
+
+
 const app = express();
 
 // ================= Middleware =================
@@ -17,6 +22,10 @@ app.get("/", asyncHandler (async (req: Request, res: Response) => {
       dbTime: result[0].now,
     });
 }));
+
+// ================= Swagger =================
+const spec = YAML.load(path.join(__dirname, 'swagger.yaml'));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(spec));
 
 app.use("/api/v1", routes);
 
