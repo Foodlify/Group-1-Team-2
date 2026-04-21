@@ -71,18 +71,6 @@ export const updateCartItem = asyncHandler(
     const userId = req.userId as number;
     const { menuItemId, quantity, mode = "set" } = req.body;
 
-  
-    if (!menuItemId || quantity === undefined) {
-      return res.status(400).json({
-        message: "menuItemId and quantity are required",
-      });
-    }
-
-    if (quantity < 0) {
-      return res.status(400).json({
-        message: "Quantity cannot be negative",
-      });
-    }
 
     const result = await cartService.updateCartItem(
       userId,
