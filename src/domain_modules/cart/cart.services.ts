@@ -102,50 +102,54 @@ export const updateCartItem = async (
   mode: "set" | "increment" | "decrement"
 ) => {
 
-  let cart = await cartRepo.findActiveCartByUserId(userId);
 
+  if (!menuItemId || quantity === undefined) {
+    throw new AppError("menuItemId and quantity are required", 400);
+  }
+
+  if (quantity < 0) {
+    throw new AppError("Quantity cannot be negative", 400);
+  }
+
+
+  let cart = await cartRepo.findActiveCartByUserId(userId);
   if (!cart) {
     cart = await cartRepo.createCart(userId);
   }
 
   const cartId = cart.id;
 
-  const item = await cartRepo.findCartItem(cartId, menuItemId);
-  const menuItem = await cartRepo.findMenuItemById(menuItemId);
+
+  const [item, menuItem] = await Promise.all([
+    cartRepo.findCartItem(cartId, menuItemId),
+    cartRepo.findMenuItemById(menuItemId),
+  ]);
 
   if (!menuItem) {
-    throw new Error("Menu item not found");
+    throw new AppError("Menu item not found", 404);
   }
 
-  let newQuantity = item ? item.quantity : 0;
+  const currentQuantity = item?.quantity ?? 0;
 
-  switch (mode) {
-    case "increment":
-      newQuantity += quantity;
-      break;
+  const newQuantity =
+    mode === "increment"
+      ? currentQuantity + quantity
+      : mode === "decrement"
+      ? currentQuantity - quantity
+      : quantity;
 
-    case "decrement":
-      newQuantity -= quantity;
-      break;
-
-    case "set":
-    default:
-      newQuantity = quantity;
-      break;
+ 
+  if (newQuantity > menuItem.stock) {
+    throw new AppError(
+      `Not enough stock for "${menuItem.name}". Only ${menuItem.stock} left`,
+      400
+    );
   }
 
-if (newQuantity > menuItem.stock) {
-  throw new AppError(
-    `Not enough stock for "${menuItem.name}". Only ${menuItem.stock} left in stock`,400
-  );
-}
-
-  
   if (newQuantity <= 0) {
     await cartRepo.removeCartItem(cartId, menuItemId);
     return { message: "Item removed from cart" };
   }
-
 
   if (!item) {
     return cartRepo.createCartItem(
@@ -156,7 +160,12 @@ if (newQuantity > menuItem.stock) {
     );
   }
 
-  
+  await cartRepo.updateCartItem(item.id, newQuantity);
+
+ 
+  const updatedCart = await cartRepo.getCartByUserId(userId);
+  return buildCartResponse(updatedCart);
+};
   await cartRepo.updateCartItem(item.id, newQuantity);
 
 
