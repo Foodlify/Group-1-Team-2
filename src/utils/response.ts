@@ -23,6 +23,6 @@ export const sendError = (
     statusCode=StatusCodes.BAD_REQUEST,
     data,
    }
-    :{message?:string,statusCode?:number,data?:unknown}) =>{
+    :{message?:string,statusCode?:number,data?:unknown}={}) =>{
 res.status(statusCode).json({status:'Error' , message,data})
 }
