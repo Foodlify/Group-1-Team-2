@@ -41,7 +41,7 @@ export const modifyCart = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const removeItem = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId as number;
+    const userId = 100304;
     const  menuItemId  = Number(req.params.menuItemId);
 
    const cart = await cartService.removeItem(userId, menuItemId);
@@ -54,10 +54,7 @@ export const clearCart = asyncHandler(async (req: Request, res: Response) => {
 
     const cart = await cartService.clearCart(userId);
 
-    return res.status(200).json({
-        message: "Cart cleared successfully",
-        data: { cart }
-    });
+    sendSucess(res,{ message: "Cart cleared successfully",statusCode:StatusCodes.OK,data:cart})
 });
 
 
@@ -66,11 +63,8 @@ export const updateCartItem = asyncHandler(
     const userId = req.userId as number;
     const { menuItemId, quantity, mode = "set" } = req.body;
 
-<<<<<<< HEAD
   
   
-=======
->>>>>>> 99a28bd9b42bc2ba5cc0460140b9c3cb1d5ce64f
 
     const result = await cartService.updateCartItem(
       userId,
@@ -79,9 +73,7 @@ export const updateCartItem = asyncHandler(
       mode
     );
 
-    return res.status(200).json({
-      status: "success",
-      data: result,
-    });
+    sendSucess(res,{ message: "Cart cleared successfully",statusCode:StatusCodes.OK,data:result})
+
   }
 );

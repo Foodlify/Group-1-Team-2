@@ -2,11 +2,11 @@ import * as cartRepo from "./cart.repository";
 import AppError from "../../utils/appError";
 import { Cart } from "@prisma/client";
 import { buildCartResponse } from "../../shared/cart.mapper";
-import {
+import {	StatusCodes } from 'http-status-codes';
+import { MenuItemNotFoundException,StockNotEnoughException,RequiredFieldsException ,InvalidQuantityException} from "../../shared/exceptions/MenuItem.exception";
+import { CartNotFoundExeption } from "../../shared/exceptions/Cart.exception";
 
-	StatusCodes
-	
-} from 'http-status-codes';
+  console.log("MenuItemNotFoundException =", MenuItemNotFoundException);
 
 export const addToCart = async (
   userId: number,
@@ -15,10 +15,10 @@ export const addToCart = async (
 ) => {
   const menuItem = await cartRepo.findMenuItemById(menuItemId);
   if (!menuItem) {
-    throw new AppError("Product not found", StatusCodes.NOT_FOUND);
+    throw new MenuItemNotFoundException(menuItemId);
   }
   if (menuItem.stock < quantity) {
-    throw new AppError("Not enough product stock available",  StatusCodes.BAD_REQUEST);
+    throw new StockNotEnoughException(menuItemId);
   }
 
   let cart = await cartRepo.findActiveCartByUserId(userId);
@@ -54,9 +54,10 @@ return buildCartResponse(cart)
 }
 
 export const modifyCart = async (userId: number, menuItemId: number, quantity: number) => {
+  
   const menuItem = await cartRepo.findMenuItemById(menuItemId);
   if (!menuItem) {
-    throw new AppError("Menu item not found now", StatusCodes.NOT_FOUND);
+    throw new MenuItemNotFoundException(menuItemId);
   }
 
   let cart = await cartRepo.findActiveCartByUserId(userId);
@@ -64,7 +65,7 @@ export const modifyCart = async (userId: number, menuItemId: number, quantity: n
     cart = await cartRepo.createCart(userId);
   }
   if (menuItem.stock < quantity) {
-    throw new AppError("Not enough stock available", StatusCodes.BAD_REQUEST);
+    throw new StockNotEnoughException(menuItemId);
   }
 
   await cartRepo.addOrUpdateCartItem(cart.id, menuItemId, quantity, menuItem.price);
@@ -75,7 +76,7 @@ export const modifyCart = async (userId: number, menuItemId: number, quantity: n
 export const removeItem = async (userId: number, menuItemId: number) => {
   const cart = await cartRepo.getCartByUserId(userId);
   if (!cart) {
-    throw new AppError("Cart not found", StatusCodes.NOT_FOUND);
+    throw new CartNotFoundExeption();
   }
 
   const cartItem = await cartRepo.findCartItem(cart.id, menuItemId);
@@ -91,7 +92,7 @@ export const removeItem = async (userId: number, menuItemId: number) => {
 export const clearCart = async (userId: number) => {
   const cart = await cartRepo.getCartByUserId(userId);
   if (!cart) {
-    throw new AppError("Cart not found", StatusCodes.NOT_FOUND);
+    throw new CartNotFoundExeption();
   }
 
   await cartRepo.clearCartItems(cart.id);
@@ -107,11 +108,11 @@ export const updateCartItem = async (
 ) => {
 
   if (!menuItemId || quantity === undefined) {
-    throw new AppError("menuItemId and quantity are required", StatusCodes.BAD_REQUEST);
+    throw new RequiredFieldsException();
   }
 
   if (quantity < 0) {
-    throw new AppError("Quantity cannot be negative", StatusCodes.BAD_REQUEST);
+    throw new InvalidQuantityException();
   }
 
   let cart = await cartRepo.findActiveCartByUserId(userId);
@@ -126,8 +127,8 @@ export const updateCartItem = async (
     cartRepo.findMenuItemById(menuItemId),
   ]);
 
-  if (!menuItem) {
-    throw new AppError("Menu item not found", StatusCodes.BAD_REQUEST);
+   if (!menuItem) {
+    throw new MenuItemNotFoundException(menuItemId);
   }
 
   const currentQuantity = item?.quantity ?? 0;
@@ -140,10 +141,7 @@ export const updateCartItem = async (
       : quantity;
 
   if (newQuantity > menuItem.stock) {
-    throw new AppError(
-      `Not enough stock for "${menuItem.name}". Only ${menuItem.stock} left`,
-      400
-    );
+    throw new StockNotEnoughException(menuItemId);
   }
 
   if (newQuantity <= 0) {

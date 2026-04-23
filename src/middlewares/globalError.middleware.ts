@@ -1,18 +1,23 @@
 import { Request, Response, NextFunction } from "express";
-import AppError from "../utils/appError";
 
 const globalErrorHandler = (
-  err: AppError,
+  err: Error,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || "error";
+  console.log(err);
+  if('statusCode' in err){
+    return res.status((err as any).statusCode).json({
+      status:'error',
+      message:(err as any).message
+    })
+  }
 
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
+
+  res.status(500).json({
+    status: 'error',
+    message: 'internal server error',
   });
 };
 
