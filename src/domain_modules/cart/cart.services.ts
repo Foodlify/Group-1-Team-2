@@ -130,11 +130,32 @@ export const updateCartItem = async (
     cartRepo.findMenuItemById(menuItemId),
   ]);
 
+  const [item, menuItem] = await Promise.all([
+    cartRepo.findCartItem(cartId, menuItemId),
+    cartRepo.findMenuItemById(menuItemId),
+  ]);
+
   if (!menuItem) {
     throw new AppError("Menu item not found", StatusCodes.BAD_REQUEST);
   }
 
   const currentQuantity = item?.quantity ?? 0;
+  const currentQuantity = item?.quantity ?? 0;
+
+  const newQuantity =
+    mode === "increment"
+      ? currentQuantity + quantity
+      : mode === "decrement"
+      ? currentQuantity - quantity
+      : quantity;
+
+ 
+  if (newQuantity > menuItem.stock) {
+    throw new AppError(
+      `Not enough stock for "${menuItem.name}". Only ${menuItem.stock} left`,
+      400
+    );
+  }
 
   const newQuantity =
     mode === "increment"

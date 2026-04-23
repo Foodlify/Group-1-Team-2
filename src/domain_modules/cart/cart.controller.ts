@@ -66,8 +66,11 @@ export const updateCartItem = asyncHandler(
     const userId = req.userId as number;
     const { menuItemId, quantity, mode = "set" } = req.body;
 
+<<<<<<< HEAD
   
   
+=======
+>>>>>>> 99a28bd9b42bc2ba5cc0460140b9c3cb1d5ce64f
 
     const result = await cartService.updateCartItem(
       userId,
