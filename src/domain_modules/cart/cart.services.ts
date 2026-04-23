@@ -99,14 +99,12 @@ export const clearCart = async (userId: number) => {
   return await cartRepo.getCartByUserId(userId);
 };
 
-
 export const updateCartItem = async (
   userId: number,
   menuItemId: number,
   quantity: number,
   mode: "set" | "increment" | "decrement"
 ) => {
-
 
   if (!menuItemId || quantity === undefined) {
     throw new AppError("menuItemId and quantity are required", StatusCodes.BAD_REQUEST);
@@ -116,19 +114,12 @@ export const updateCartItem = async (
     throw new AppError("Quantity cannot be negative", StatusCodes.BAD_REQUEST);
   }
 
-
   let cart = await cartRepo.findActiveCartByUserId(userId);
   if (!cart) {
     cart = await cartRepo.createCart(userId);
   }
 
   const cartId = cart.id;
-
-
-  const [item, menuItem] = await Promise.all([
-    cartRepo.findCartItem(cartId, menuItemId),
-    cartRepo.findMenuItemById(menuItemId),
-  ]);
 
   const [item, menuItem] = await Promise.all([
     cartRepo.findCartItem(cartId, menuItemId),
@@ -140,7 +131,6 @@ export const updateCartItem = async (
   }
 
   const currentQuantity = item?.quantity ?? 0;
-  const currentQuantity = item?.quantity ?? 0;
 
   const newQuantity =
     mode === "increment"
@@ -149,22 +139,6 @@ export const updateCartItem = async (
       ? currentQuantity - quantity
       : quantity;
 
- 
-  if (newQuantity > menuItem.stock) {
-    throw new AppError(
-      `Not enough stock for "${menuItem.name}". Only ${menuItem.stock} left`,
-      400
-    );
-  }
-
-  const newQuantity =
-    mode === "increment"
-      ? currentQuantity + quantity
-      : mode === "decrement"
-      ? currentQuantity - quantity
-      : quantity;
-
- 
   if (newQuantity > menuItem.stock) {
     throw new AppError(
       `Not enough stock for "${menuItem.name}". Only ${menuItem.stock} left`,
@@ -178,17 +152,11 @@ export const updateCartItem = async (
   }
 
   if (!item) {
-    return cartRepo.createCartItem(
-      cartId,
-      menuItemId,
-      newQuantity,
-      menuItem.price
-    );
+    return cartRepo.createCartItem(cartId, menuItemId, newQuantity, menuItem.price);
   }
 
   await cartRepo.updateCartItem(item.id, newQuantity);
 
- 
   const updatedCart = await cartRepo.getCartByUserId(userId);
   return buildCartResponse(updatedCart);
 };
