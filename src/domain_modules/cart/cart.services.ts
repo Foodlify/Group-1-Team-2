@@ -1,40 +1,58 @@
 import * as cartRepo from "./cart.repository";
 import AppError from "../../utils/appError";
-import { Cart } from "@prisma/client";
 import { buildCartResponse } from "../../shared/cart.mapper";
 import {	StatusCodes } from 'http-status-codes';
 import { MenuItemNotFoundException,StockNotEnoughException,RequiredFieldsException ,InvalidQuantityException} from "../../shared/exceptions/MenuItem.exception";
-import { CartNotFoundExeption } from "../../shared/exceptions/Cart.exception";
+import { CartNotFoundExeption, MultipleRestaurantCartException } from "../../shared/exceptions/Cart.exception";
 
-  console.log("MenuItemNotFoundException =", MenuItemNotFoundException);
-
-export const addToCart = async (
-  userId: number,
-  menuItemId: number,
-  quantity: number
-) => {
+export const addToCart = async (userId: number,menuItemId: number, quantity: number, price: number) => {
   const menuItem = await cartRepo.findMenuItemById(menuItemId);
+
+  validateMenuItem(menuItem, quantity, menuItemId);
+  
+  const cart = await getOrCreateCart(userId);
+  
+  await addItemToCart(cart.id, menuItemId, quantity, menuItem.price);
+  
+  return await cartRepo.getCartWithItems(cart.id);
+};
+
+function validateMenuItem(
+  menuItem: MenuItem | null,
+  quantity: number,
+  menuItemId: number
+): asserts menuItem is MenuItem {
   if (!menuItem) {
     throw new MenuItemNotFoundException(menuItemId);
   }
+
   if (menuItem.stock < quantity) {
     throw new StockNotEnoughException(menuItemId);
   }
+}
 
+const getOrCreateCart = async (userId: number) => {
   let cart = await cartRepo.findActiveCartByUserId(userId);
+
   if (!cart) {
     cart = await cartRepo.createCart(userId);
   }
 
+  return cart;
+};
+
+const addItemToCart = async (
+  cartId: number,
+  menuItemId: number,
+  quantity: number,
+  price: number
+) => {
   await cartRepo.addOrUpdateCartItem(
-    cart.id,
+    cartId,
     menuItemId,
     quantity,
-    menuItem.price
+    price
   );
-
-  const updatedCart = await cartRepo.getCartWithItems(cart.id);
-  return updatedCart;
 };
 
 

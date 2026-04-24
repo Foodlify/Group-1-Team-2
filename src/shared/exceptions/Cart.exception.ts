@@ -8,3 +8,10 @@ export class CartNotFoundExeption extends Error {
    }
 }
 
+export class MultipleRestaurantCartException extends Error {
+   public statusCode = StatusCodes.BAD_REQUEST
+   constructor(){
+    super(`Cannot add items from different restaurants to the same cart`);
+    this.name = "MultipleRestaurantCartException"
+   }
+}
