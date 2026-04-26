@@ -3,118 +3,70 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-    console.log("Seeding with SQL...");
+  console.log("Seeding with SQL...");
 
-    await prisma.$executeRawUnsafe(`
-    -- USERS
-    INSERT INTO "User" (id, name, email, phone, password, created_at)
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO "User" (id, name, email)
     VALUES
-      (1, 'John Doe', 'john@test.com', '123456789', 'hashed', NOW()),
-      (2, 'Jane Doe', 'jane@test.com', '987654321', 'hashed', NOW()),
-      (3, 'Owner User', 'owner@test.com', '555555555', 'hashed', NOW())
+      (1, 'John Doe', 'john@test.com'),
+      (2, 'Jane Doe', 'jane@test.com')
     ON CONFLICT (id) DO NOTHING;
   `);
 
-    await prisma.$executeRawUnsafe(`
-    -- ROLES
-    INSERT INTO "Role" (id, name)
-    VALUES
-      (1, 'customer'),
-      (2, 'owner')
-    ON CONFLICT (id) DO NOTHING;
-  `);
-
-    await prisma.$executeRawUnsafe(`
-    -- USER ROLES
-    INSERT INTO "UserRole" (user_id, role_id)
+  // CUSTOMERS
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO "Customer" (id, "userId")
     VALUES
       (1, 1),
-      (2, 1),
-      (3, 2)
-    ON CONFLICT DO NOTHING;
-  `);
-
-    await prisma.$executeRawUnsafe(`
-    -- RESTAURANT
-    INSERT INTO "Restaurant" (id, name, owner_id, address, rating)
-    VALUES
-      (1, 'Foodlify', 3, 'Main Street', 4.5)
+      (2, 2)
     ON CONFLICT (id) DO NOTHING;
   `);
 
-    await prisma.$executeRawUnsafe(`
-    -- MENU
-    INSERT INTO "Menu" (id, name, restaurant_id)
+  // RESTAURANT
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO "Restaurant" (id, name)
     VALUES
-      (1, 'Main Menu', 1)
+      (1, 'Foodlify')
     ON CONFLICT (id) DO NOTHING;
   `);
 
-    await prisma.$executeRawUnsafe(`
-    -- MENU ITEMS
-    INSERT INTO "MenuItem" (id, name, description, price, stock, menu_id)
+  // MENU
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO "Menu" (id, "restaurantId")
     VALUES
-      (1, 'Burger', 'Beef burger', 10, 50, 1),
-      (2, 'Pizza', 'Cheese pizza', 15, 40, 1),
-      (3, 'Pasta', 'Italian pasta', 12, 30, 1)
+      (1, 1)
     ON CONFLICT (id) DO NOTHING;
   `);
 
-    await prisma.$executeRawUnsafe(`
-    -- DISCOUNT
-    INSERT INTO "DiscountCode" (id, code, discount_amount, discount_type, expires_at, is_active)
+  // MENU ITEMS
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO "MenuItem" (id, "menuId", "itemName", price)
     VALUES
-      (1, 'DISCOUNT10', 10, 'percentage', NOW() + interval '7 days', true)
+      (1, 1, 'Burger', 10.00),
+      (2, 1, 'Pizza', 15.00),
+      (3, 1, 'Pasta', 12.00)
     ON CONFLICT (id) DO NOTHING;
   `);
 
-    await prisma.$executeRawUnsafe(`
-    -- CART
-    INSERT INTO "Cart" (id, user_id, status, discount_id, created_at)
+  // CARTS
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO "Cart" (id, "customerId", "restaurantId", "isActive", "createdAt")
     VALUES
-      (1, 1, 'active', 1, NOW()),
-      (2, 2, 'active', NULL, NOW())
+      (1, 1, 1, true, NOW()),
+      (2, 2, 1, true, NOW())
     ON CONFLICT (id) DO NOTHING;
   `);
 
-    await prisma.$executeRawUnsafe(`
-    -- CART ITEMS
-    INSERT INTO "CartItem" (cart_id, menu_item_id, quantity, price)
+  // CART ITEMS
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO "CartItem" ("cartId", "menuItemId", quantity)
     VALUES
-      (1, 1, 2, 10),
-      (1, 2, 1, 15),
-      (2, 3, 3, 12)
-    ON CONFLICT DO NOTHING;
+      (1, 1, 2),
+      (1, 2, 1),
+      (2, 3, 3)
+    ON CONFLICT ("cartId", "menuItemId") DO NOTHING;
   `);
-
-    await prisma.$executeRawUnsafe(`
-    -- ORDER STATUS
-    INSERT INTO "OrderStatus" (id, name)
-    VALUES
-      (1, 'pending'),
-      (2, 'completed')
-    ON CONFLICT (id) DO NOTHING;
-  `);
-
-    await prisma.$executeRawUnsafe(`
-    -- PAYMENT STATUS
-    INSERT INTO "PaymentStatus" (id, name)
-    VALUES
-      (1, 'pending'),
-      (2, 'paid'),
-      (3, 'failed')
-    ON CONFLICT (id) DO NOTHING;
-  `);
-
-    await prisma.$executeRawUnsafe(`
-    -- PAYMENT METHODS
-    INSERT INTO "PaymentMethod" (id, name)
-    VALUES
-      (1, 'cash'),
-      (2, 'card')
-    ON CONFLICT (id) DO NOTHING;
-  `);
-
+  
     console.log("SQL seeding completed");
 }
 

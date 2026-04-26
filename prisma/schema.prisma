@@ -8,218 +8,67 @@ datasource db {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
-  name       String
-  phone      String
-  email      String    @unique
-  password   String
-  deleted_at DateTime?
+  id       Int       @id @default(autoincrement())
+  name     String
+  email    String    @unique
 
-  addresses   Address[]
-  carts       Cart[]
-  orders      Order[]
-  roles       UserRole[]
-
-  restaurants Restaurant[]
-  payments    Payment[]
-
-  created_at DateTime  @default(now())
+  customer Customer?
 }
 
-model Role {
-  id    Int        @id @default(autoincrement())
-  name  String     @unique
+model Customer {
+  id     Int   @id @default(autoincrement())
+  userId Int   @unique
 
-  users UserRole[]
+  user   User  @relation(fields: [userId], references: [id])
+  carts  Cart[]
 }
-
-model UserRole {
-  user_id Int
-  role_id Int
-
-  user User @relation(fields: [user_id], references: [id])
-  role Role @relation(fields: [role_id], references: [id])
-
-  @@id([user_id, role_id])
-}
-
-model Address {
-  id           Int     @id @default(autoincrement())
-  user_id      Int
-  label        String
-  street       String
-  building_no  String?
-  city         String
-  governorate  String
-  postal_code  String?
-
-  user User @relation(fields: [user_id], references: [id])
-
-  orders Order[]
-}
-
 model Restaurant {
-  id            Int     @id @default(autoincrement())
-  owner_id      Int
-  name          String
-  email         String?
-  contact_phone String?
-  address       String
-  rating        Float   @default(0)
+  id    Int    @id @default(autoincrement())
+  name  String
 
-  owner User @relation(fields: [owner_id], references: [id])
   menus Menu[]
+  carts Cart[]
 }
 
 model Menu {
-  id            Int     @id @default(autoincrement())
-  restaurant_id Int
-  name          String
+  id           Int        @id @default(autoincrement())
+  restaurantId Int
 
-  restaurant Restaurant @relation(fields: [restaurant_id], references: [id])
-  items       MenuItem[]
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  menuItems    MenuItem[]
 }
 
 model MenuItem {
-  id          Int     @id @default(autoincrement())
-  menu_id     Int
-  name        String
-  description String?
-  price       Float
-  stock       Int     @default(0)
+  id        Int     @id @default(autoincrement())
+  menuId    Int
+  itemName  String
+  price     Decimal @db.Decimal(10,2)
 
-  menu      Menu       @relation(fields: [menu_id], references: [id])
+  menu      Menu    @relation(fields: [menuId], references: [id])
   cartItems CartItem[]
 }
 
 model Cart {
-  id           Int       @id @default(autoincrement())
-  user_id      Int
-  status       CartStatus
-  discount_id  Int?
-  total_price  Float?
+  id           Int      @id @default(autoincrement())
+  customerId   Int
+  restaurantId Int
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
 
-  user     User          @relation(fields: [user_id], references: [id])
-  items    CartItem[]
-  order    Order?
-  discount DiscountCode? @relation(fields: [discount_id], references: [id])
+  customer     Customer   @relation(fields: [customerId], references: [id])
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
 
-  created_at DateTime @default(now())
-
-  @@index([user_id])
+  cartItems    CartItem[]
 }
 
 model CartItem {
-  id           Int     @id @default(autoincrement())
-  cart_id      Int
-  menu_item_id Int
-  quantity     Int
-  price        Float
+  id         Int      @id @default(autoincrement())
+  cartId     Int
+  menuItemId Int
+  quantity   Int      @default(1)
 
-  cart     Cart     @relation(fields: [cart_id], references: [id])
-  menuItem MenuItem @relation(fields: [menu_item_id], references: [id])
+  cart       Cart     @relation(fields: [cartId], references: [id])
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
 
-  @@unique([cart_id, menu_item_id])
-}
-
-enum CartStatus {
-  active
-  checked_out
-}
-
-model Order {
-  id              Int      @id @default(autoincrement())
-  user_id         Int
-  cart_id         Int      @unique
-  address_id      Int
-  order_status_id Int
-  order_date      DateTime @default(now())
-  total_price     Float
-
-  user    User    @relation(fields: [user_id], references: [id])
-  cart    Cart    @relation(fields: [cart_id], references: [id])
-  address Address @relation(fields: [address_id], references: [id])
-  status  OrderStatus @relation(fields: [order_status_id], references: [id])
-  payment Payment?
-}
-
-model OrderStatus {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-
-  orders Order[]
-}
-
-model DiscountCode {
-  id              Int      @id @default(autoincrement())
-  code            String   @unique
-  expires_at      DateTime
-  discount_amount Float
-  discount_type   DiscountType
-  is_active       Boolean  @default(true)
-
-  carts Cart[]
-}
-
-enum DiscountType {
-  percentage
-  fixed
-}
-
-model Payment {
-  id                 Int      @id @default(autoincrement())
-  order_id           Int      @unique
-  user_id            Int
-  payment_method_id  Int
-  payment_status_id  Int
-  shipping_fee       Float
-  total_amount       Float
-
-  order        Order         @relation(fields: [order_id], references: [id])
-  user         User          @relation(fields: [user_id], references: [id])
-  method       PaymentMethod @relation(fields: [payment_method_id], references: [id])
-  status       PaymentStatus @relation(fields: [payment_status_id], references: [id])
-  transactions Transaction[]
-}
-
-model PaymentMethod {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  payments Payment[]
-}
-
-model PaymentStatus {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  payments Payment[]
-}
-
-model Transaction {
-  id                        Int      @id @default(autoincrement())
-  payment_id                Int
-  provider_transaction_id   String?  @unique
-  status                    TransactionStatus
-  amount                    Float
-  created_at                DateTime @default(now())
-
-  payment Payment @relation(fields: [payment_id], references: [id])
-  audits  Audit[]
-}
-
-model Audit {
-  id             Int      @id @default(autoincrement())
-  transaction_id Int
-  old_status     String
-  new_status     String
-  changed_at     DateTime @default(now())
-
-  transaction Transaction @relation(fields: [transaction_id], references: [id])
-}
-
-enum TransactionStatus {
-  pending
-  success
-  failed
+  @@unique([cartId, menuItemId])
 }
