@@ -2,26 +2,24 @@ import * as cartRepo from "./cart.repository";
 import AppError from "../../utils/appError";
 import { buildCartResponse } from "../../shared/cart.mapper";
 import {	StatusCodes } from 'http-status-codes';
-import { MenuItemNotFoundException,StockNotEnoughException,RequiredFieldsException ,InvalidQuantityException} from "../../shared/exceptions/MenuItem.exception";
+import { MenuItemNotFoundException, StockNotEnoughException, RequiredFieldsException, InvalidQuantityException} from "../../shared/exceptions/MenuItem.exception";
 import { CartNotFoundExeption, MultipleRestaurantCartException } from "../../shared/exceptions/Cart.exception";
-
-export const addToCart = async (userId: number,menuItemId: number, quantity: number, price: number) => {
+import { Cart, MenuItem } from "./cart.model";
+import { Decimal } from "@prisma/client/runtime/library";
+export const addToCart = async (userId: number,menuItemId: number, quantity: number, price: Decimal) => {
   const menuItem = await cartRepo.findMenuItemById(menuItemId);
 
   validateMenuItem(menuItem, quantity, menuItemId);
-  
+
   const cart = await getOrCreateCart(userId);
   
   await addItemToCart(cart.id, menuItemId, quantity, menuItem.price);
-  
+
   return await cartRepo.getCartWithItems(cart.id);
 };
 
-function validateMenuItem(
-  menuItem: MenuItem | null,
-  quantity: number,
-  menuItemId: number
-): asserts menuItem is MenuItem {
+
+function validateMenuItem(menuItem: MenuItem | null,quantity: number,menuItemId: number): asserts menuItem is MenuItem {
   if (!menuItem) {
     throw new MenuItemNotFoundException(menuItemId);
   }
@@ -30,23 +28,17 @@ function validateMenuItem(
     throw new StockNotEnoughException(menuItemId);
   }
 }
-
 const getOrCreateCart = async (userId: number) => {
   let cart = await cartRepo.findActiveCartByUserId(userId);
 
   if (!cart) {
-    cart = await cartRepo.createCart(userId);
+    cart = await cartRepo.createCartFirstTime(userId);
   }
 
   return cart;
 };
 
-const addItemToCart = async (
-  cartId: number,
-  menuItemId: number,
-  quantity: number,
-  price: number
-) => {
+const addItemToCart = async (cartId: number,menuItemId: number,quantity: number,price: Decimal) => {
   await cartRepo.addOrUpdateCartItem(
     cartId,
     menuItemId,
@@ -54,8 +46,6 @@ const addItemToCart = async (
     price
   );
 };
-
-
 export const viewCart = async (userId: number) => {
 
   const cart = await cartRepo.getCartByUserId(userId);
@@ -74,22 +64,26 @@ return buildCartResponse(cart)
 export const modifyCart = async (userId: number, menuItemId: number, quantity: number) => {
   
   const menuItem = await cartRepo.findMenuItemById(menuItemId);
-  if (!menuItem) {
-    throw new MenuItemNotFoundException(menuItemId);
-  }
+
+  validateMenuItem(menuItem, quantity, menuItemId);
+
+  const restaurantId = menuItem.menu.restaurantId;
 
   let cart = await cartRepo.findActiveCartByUserId(userId);
   if (!cart) {
-    cart = await cartRepo.createCart(userId);
+    cart = await cartRepo.createCart(userId, restaurantId);
   }
-  if (menuItem.stock < quantity) {
-    throw new StockNotEnoughException(menuItemId);
+
+  if(cart.restaurantId!==restaurantId){
+    throw new MultipleRestaurantCartException(); 
   }
 
   await cartRepo.addOrUpdateCartItem(cart.id, menuItemId, quantity, menuItem.price);
 
   return await cartRepo.getCartByUserId(userId);
 }
+
+
 
 export const removeItem = async (userId: number, menuItemId: number) => {
   const cart = await cartRepo.getCartByUserId(userId);
@@ -116,63 +110,4 @@ export const clearCart = async (userId: number) => {
   await cartRepo.clearCartItems(cart.id);
 
   return await cartRepo.getCartByUserId(userId);
-};
-
-export const updateCartItem = async (
-  userId: number,
-  menuItemId: number,
-  quantity: number,
-  mode: "set" | "increment" | "decrement"
-) => {
-
-  if (!menuItemId || quantity === undefined) {
-    throw new RequiredFieldsException();
-  }
-
-  if (quantity < 0) {
-    throw new InvalidQuantityException();
-  }
-
-  let cart = await cartRepo.findActiveCartByUserId(userId);
-  if (!cart) {
-    cart = await cartRepo.createCart(userId);
-  }
-
-  const cartId = cart.id;
-
-  const [item, menuItem] = await Promise.all([
-    cartRepo.findCartItem(cartId, menuItemId),
-    cartRepo.findMenuItemById(menuItemId),
-  ]);
-
-   if (!menuItem) {
-    throw new MenuItemNotFoundException(menuItemId);
-  }
-
-  const currentQuantity = item?.quantity ?? 0;
-
-  const newQuantity =
-    mode === "increment"
-      ? currentQuantity + quantity
-      : mode === "decrement"
-      ? currentQuantity - quantity
-      : quantity;
-
-  if (newQuantity > menuItem.stock) {
-    throw new StockNotEnoughException(menuItemId);
-  }
-
-  if (newQuantity <= 0) {
-    await cartRepo.removeCartItem(cartId, menuItemId);
-    return { message: "Item removed from cart" };
-  }
-
-  if (!item) {
-    return cartRepo.createCartItem(cartId, menuItemId, newQuantity, menuItem.price);
-  }
-
-  await cartRepo.updateCartItem(item.id, newQuantity);
-
-  const updatedCart = await cartRepo.getCartByUserId(userId);
-  return buildCartResponse(updatedCart);
 };

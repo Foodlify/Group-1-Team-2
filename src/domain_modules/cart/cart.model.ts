@@ -1,23 +1,26 @@
-type MenuItem = {
+import { Decimal } from "@prisma/client/runtime/library";
+export type MenuItem = {
     id: number;
-    menu_id: number;
-    name: string;
-    description: string | null;
-    price: number;
+    menuId: number;
+    itemName: string;
+    price: Decimal;
     stock: number;
 };
 
-type Cart = {
+export type Cart = {
     id: number;
-    user_id: number;
-    items: CartItem[];
+    customerId: number;
+    restaurantId: number;
+    status: boolean;
+    createdAt: Date;
+    cartItems: CartItem[];
 };
 
-type CartItem = {
+export type CartItem = {
     id: number;
-    cart_id: number;
-    menu_item_id: number;
+    cartId: number;
+    menuItemId: number;
     quantity: number;
-    price: number;
+    price: Decimal;
     menuItem?: MenuItem;
 };

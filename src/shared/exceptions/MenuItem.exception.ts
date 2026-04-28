@@ -29,9 +29,10 @@ export class RequiredFieldsException extends Error {
 
 export class InvalidQuantityException extends Error {
   public statusCode = StatusCodes.BAD_REQUEST;
-
+  
   constructor() {
     super("Quantity cannot be negative");
     this.name = "InvalidQuantityException";
   }
 }
+

@@ -58,22 +58,3 @@ export const clearCart = asyncHandler(async (req: Request, res: Response) => {
 });
 
 
-export const updateCartItem = asyncHandler(
-  async (req: Request, res: Response) => {
-    const userId = req.userId as number;
-    const { menuItemId, quantity, mode = "set" } = req.body;
-
-  
-  
-
-    const result = await cartService.updateCartItem(
-      userId,
-      Number(menuItemId),
-      Number(quantity),
-      mode
-    );
-
-    sendSucess(res,{ message: "Cart cleared successfully",statusCode:StatusCodes.OK,data:result})
-
-  }
-);

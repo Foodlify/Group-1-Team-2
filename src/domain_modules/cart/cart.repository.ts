@@ -1,20 +1,30 @@
 import prisma from "../../lib/prisma";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export const findMenuItemById = async (id: number) => {
   return prisma.menuItem.findUnique({
     where: { id },
+    include: {
+      menu: true,
+    },
   });
 };
 
 export const findActiveCartByUserId = async (userId: number) => {
   return prisma.cart.findFirst({
-    where: { user_id: userId, status: "active" },
+    where: { customerId: userId, status: true },
   });
 };
 
-export const createCart = async (userId: number) => {
+export const createCartFirstTime = async (userId: number) => {
   return prisma.cart.create({
-    data: { user_id: userId, status: "active" },
+    data: { customerId: userId, status: true, restaurantId: 0 },
+  });
+};
+
+export const createCart = async (userId: number, restaurantId: number) => {
+  return prisma.cart.create({
+    data: { customerId: userId, status: true, restaurantId: restaurantId },
   });
 };
 
@@ -22,16 +32,16 @@ export const addOrUpdateCartItem = async (
   cartId: number,
   menuItemId: number,
   quantity: number,
-  price: number
+  price: Decimal
 ) => {
   return prisma.cartItem.upsert({
     where: {
-      cart_id_menu_item_id: { cart_id: cartId, menu_item_id: menuItemId },
+      cartId_menuItemId  : { cartId: cartId, menuItemId: menuItemId },
     },
     update: { quantity, price },
     create: {
-      cart_id: cartId,
-      menu_item_id: menuItemId,
+      cartId: cartId,
+      menuItemId: menuItemId,
       quantity,
       price,
     },
@@ -42,7 +52,7 @@ export const getCartWithItems = async (cartId: number) => {
   return prisma.cart.findUnique({
     where: { id: cartId },
     include: {
-      items: {
+      cartItems: {
         include: { menuItem: true },
       },
     },
@@ -52,11 +62,11 @@ export const getCartWithItems = async (cartId: number) => {
 export const getCartByUserId = async (userId: number) => {
     return await prisma.cart.findFirst({
         where: { 
-            user_id: userId,
-            status: "active",
+            customerId: userId,
+            status: true,
         },
         include: {
-            items: {
+            cartItems: {
                 include: {
                     menuItem: true,
                 },
@@ -81,12 +91,12 @@ export const createCartItem = async (
     cartId: number,
     menuItemId: number,
     quantity: number,
-    price: number
+    price: Decimal
 ) => {
     return await prisma.cartItem.create({
         data: {
-            cart_id: cartId,
-            menu_item_id: menuItemId,
+            cartId: cartId,
+            menuItemId: menuItemId,
             quantity,
             price,
         },
@@ -95,15 +105,15 @@ export const createCartItem = async (
 
 export const clearCartItems = async (cartId: number) => {
     return await prisma.cartItem.deleteMany({
-        where: { cart_id: cartId },
+        where: { cartId: cartId },
     });
 };
 
 export const findCartItem = async (cartId: number, menuItemId: number) => {
   return await prisma.cartItem.findFirst({
     where: {
-      cart_id: cartId,
-      menu_item_id: menuItemId,
+      cartId: cartId,
+      menuItemId: menuItemId,
     },
   });
 };
@@ -111,7 +121,7 @@ export const findCartItem = async (cartId: number, menuItemId: number) => {
 export const removeCartItem = async (cartId: number, menuItemId: number) => {
     return await prisma.cartItem.delete({
         where: {
-            cart_id_menu_item_id: { cart_id: cartId, menu_item_id: menuItemId },
+            cartId_menuItemId  : { cartId: cartId, menuItemId: menuItemId },
         },
     });
 }

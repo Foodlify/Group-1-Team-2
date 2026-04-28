@@ -13,8 +13,10 @@ services:
       - .:/app
       - /app/node_modules
     env_file:
-      - .env  
+      - .env
     environment:
       - NODE_ENV=development
-      - CHOKIDAR USEPOLLING=true
-      - WATCHPACK POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+
+      

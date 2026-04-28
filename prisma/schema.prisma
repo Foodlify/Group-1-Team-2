@@ -11,7 +11,7 @@ model User {
   id       Int       @id @default(autoincrement())
   name     String
   email    String    @unique
-
+  
   customer Customer?
 }
 
@@ -43,6 +43,7 @@ model MenuItem {
   menuId    Int
   itemName  String
   price     Decimal @db.Decimal(10,2)
+  stock     Int     @default(0)
 
   menu      Menu    @relation(fields: [menuId], references: [id])
   cartItems CartItem[]
@@ -52,7 +53,7 @@ model Cart {
   id           Int      @id @default(autoincrement())
   customerId   Int
   restaurantId Int
-  isActive     Boolean  @default(true)
+  status       Boolean  @default(true)
   createdAt    DateTime @default(now())
 
   customer     Customer   @relation(fields: [customerId], references: [id])

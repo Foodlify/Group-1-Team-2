@@ -3,14 +3,15 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Seeding with SQL...");
+  console.log("🌱 Seeding with SQL...");
 
+  // USERS
   await prisma.$executeRawUnsafe(`
     INSERT INTO "User" (id, name, email)
     VALUES
       (1, 'John Doe', 'john@test.com'),
       (2, 'Jane Doe', 'jane@test.com')
-    ON CONFLICT (id) DO NOTHING;
+    ON CONFLICT (email) DO NOTHING;
   `);
 
   // CUSTOMERS
@@ -19,7 +20,7 @@ async function main() {
     VALUES
       (1, 1),
       (2, 2)
-    ON CONFLICT (id) DO NOTHING;
+    ON CONFLICT ("userId") DO NOTHING;
   `);
 
   // RESTAURANT
@@ -40,17 +41,17 @@ async function main() {
 
   // MENU ITEMS
   await prisma.$executeRawUnsafe(`
-    INSERT INTO "MenuItem" (id, "menuId", "itemName", price)
+    INSERT INTO "MenuItem" (id, "menuId", "itemName", price, stock)
     VALUES
-      (1, 1, 'Burger', 10.00),
-      (2, 1, 'Pizza', 15.00),
-      (3, 1, 'Pasta', 12.00)
+      (1, 1, 'Burger', 10.00, 50),
+      (2, 1, 'Pizza', 15.00, 40),
+      (3, 1, 'Pasta', 12.00, 30)
     ON CONFLICT (id) DO NOTHING;
   `);
 
-  // CARTS
+  // CARTS ✅ (تم تصحيح status بدل isActive)
   await prisma.$executeRawUnsafe(`
-    INSERT INTO "Cart" (id, "customerId", "restaurantId", "isActive", "createdAt")
+    INSERT INTO "Cart" (id, "customerId", "restaurantId", status, "createdAt")
     VALUES
       (1, 1, 1, true, NOW()),
       (2, 2, 1, true, NOW())
@@ -66,15 +67,15 @@ async function main() {
       (2, 3, 3)
     ON CONFLICT ("cartId", "menuItemId") DO NOTHING;
   `);
-  
-    console.log("SQL seeding completed");
+
+  console.log("✅ SQL seeding completed");
 }
 
 main()
-    .catch((e) => {
-        console.error(e);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });
+  .catch((e) => {
+    console.error("❌ Seeding error:", e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
