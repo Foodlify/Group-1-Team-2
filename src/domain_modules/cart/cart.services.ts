@@ -6,18 +6,6 @@ import { MenuItemNotFoundException, StockNotEnoughException, RequiredFieldsExcep
 import { CartNotFoundExeption, MultipleRestaurantCartException } from "../../shared/exceptions/Cart.exception";
 import { Cart, MenuItem } from "./cart.model";
 import { Decimal } from "@prisma/client/runtime/library";
-export const addToCart = async (userId: number,menuItemId: number, quantity: number, price: Decimal) => {
-  const menuItem = await cartRepo.findMenuItemById(menuItemId);
-
-  validateMenuItem(menuItem, quantity, menuItemId);
-
-  const cart = await getOrCreateCart(userId);
-  
-  await addItemToCart(cart.id, menuItemId, quantity, menuItem.price);
-
-  return await cartRepo.getCartWithItems(cart.id);
-};
-
 
 function validateMenuItem(menuItem: MenuItem | null,quantity: number,menuItemId: number): asserts menuItem is MenuItem {
   if (!menuItem) {
@@ -28,15 +16,6 @@ function validateMenuItem(menuItem: MenuItem | null,quantity: number,menuItemId:
     throw new StockNotEnoughException(menuItemId);
   }
 }
-const getOrCreateCart = async (userId: number) => {
-  let cart = await cartRepo.findActiveCartByUserId(userId);
-
-  if (!cart) {
-    cart = await cartRepo.createCartFirstTime(userId);
-  }
-
-  return cart;
-};
 
 const addItemToCart = async (cartId: number,menuItemId: number,quantity: number,price: Decimal) => {
   await cartRepo.addOrUpdateCartItem(
@@ -46,10 +25,42 @@ const addItemToCart = async (cartId: number,menuItemId: number,quantity: number,
     price
   );
 };
+
+const getValidCartForMenuItem = async (userId: number, restaurantId: number) => {
+  let cart = await cartRepo.findActiveCartByUserId(userId);
+
+  if (!cart) {
+    cart = await cartRepo.createCart(userId, restaurantId);
+    return cart;
+  }
+
+  if (cart.restaurantId !== restaurantId) {
+    throw new MultipleRestaurantCartException();
+  }
+
+  return cart;
+};
+
+export const addToCart = async (userId: number,menuItemId: number, quantity: number) => {
+
+  const menuItem = await cartRepo.findMenuItemById(menuItemId);
+
+  validateMenuItem(menuItem, quantity, menuItemId);
+
+  const restaurantId = menuItem.menu.restaurantId;
+
+  let cart = await getValidCartForMenuItem(userId, restaurantId);
+
+  await addItemToCart(cart.id, menuItemId, quantity, menuItem.price);
+
+  return await cartRepo.getCartWithItems(cart.id);
+};
+
+
 export const viewCart = async (userId: number) => {
 
   const cart = await cartRepo.getCartByUserId(userId);
-
+  
   if (!cart) {
     return {
       cartId: null,
@@ -69,14 +80,7 @@ export const modifyCart = async (userId: number, menuItemId: number, quantity: n
 
   const restaurantId = menuItem.menu.restaurantId;
 
-  let cart = await cartRepo.findActiveCartByUserId(userId);
-  if (!cart) {
-    cart = await cartRepo.createCart(userId, restaurantId);
-  }
-
-  if(cart.restaurantId!==restaurantId){
-    throw new MultipleRestaurantCartException(); 
-  }
+  const cart = await getValidCartForMenuItem(userId, restaurantId);
 
   await cartRepo.addOrUpdateCartItem(cart.id, menuItemId, quantity, menuItem.price);
 
