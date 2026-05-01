@@ -1,5 +1,7 @@
 import app from "./app";
 import prisma from "./lib/prisma";
+import 'dotenv/config'
+
 async function startServer() {
   try {
     await prisma.$connect();
