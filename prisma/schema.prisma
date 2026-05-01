@@ -25,6 +25,8 @@ model Customer {
   user   User  @relation(fields: [userId], references: [id])
   carts  Cart[]
   addresses Address []
+  order Order[]
+  transactions Transaction[]
 }
 
 model Restaurant {
@@ -81,14 +83,16 @@ model CartItem {
   @@unique([cartId, menuItemId])
 }
 
-model Address  {
-  id Int @id @default(autoincrement())
-  customerId Int
+model Address {
+  id          Int      @id @default(autoincrement())
+  customerId  Int     
   addressLine String
-  city String
-  government String
-  postalCode String 
-  customer @relation(fields:[customerId] , references:[id])
+  city        String
+  government  String
+  postalCode  String
+
+  customer    Customer @relation(fields: [customerId], references: [id])
+  orders      Order[]
 }
 
 enum OrderStatus {
@@ -116,7 +120,7 @@ model Order {
   restaurant Restaurant @relation(fields:[restaurantId] ,references:[id])
 
   orderItem OrderItem[]
-
+  transaction   Transaction?
 }
 
 model OrderItem {
