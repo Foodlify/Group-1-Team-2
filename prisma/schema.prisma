@@ -13,6 +13,9 @@ model User {
   email    String    @unique
   
   customer Customer?
+
+
+
 }
 
 model Customer {
@@ -21,13 +24,16 @@ model Customer {
 
   user   User  @relation(fields: [userId], references: [id])
   carts  Cart[]
+  addresses Address []
 }
+
 model Restaurant {
   id    Int    @id @default(autoincrement())
   name  String
 
   menus Menu[]
   carts Cart[]
+  orders Order[]
 }
 
 model Menu {
@@ -47,6 +53,7 @@ model MenuItem {
 
   menu      Menu    @relation(fields: [menuId], references: [id])
   cartItems CartItem[]
+  orderItems OrderItem[]
 }
 
 model Cart {
@@ -72,4 +79,117 @@ model CartItem {
   menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
 
   @@unique([cartId, menuItemId])
+}
+
+model Address  {
+  id Int @id @default(autoincrement())
+  customerId Int
+  addressLine String
+  city String
+  government String
+  postalCode String 
+  customer @relation(fields:[customerId] , references:[id])
+}
+
+enum OrderStatus {
+  PENDING 
+  PREPARING 
+  DELIVERED
+  CANCELLED
+}
+
+
+
+model Order {
+  id   Int @id @default(autoincrement())
+  customerId Int
+  restaurantId Int
+  addressId Int
+  status OrderStatus @default(PENDING)
+  totalPrice Decimal @db.Decimal(10,2)
+  paymentMethod PaymentMethod 
+  notes String?
+  createdAt DateTime @default(now())
+
+  customer Customer @relation (fields:[customerId] , references:[id])
+  address Address  @relation(fields:[addressId] , references:[id])
+  restaurant Restaurant @relation(fields:[restaurantId] ,references:[id])
+
+  orderItem OrderItem[]
+
+}
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+  orderId Int
+  menuItemId Int
+  itemName String 
+  price Decimal @db.Decimal(10,2)
+  quantity Int
+  itemTotal Decimal @db.Decimal(10,2)
+
+  order Order @relation(fields:[orderId] , references:[id])
+  menuItem MenuItem @relation(fields:[menuItemId] ,references:[id])
+
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  WALLET
+  APPLE_PAY
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model Transaction {
+  id                    Int               @id @default(autoincrement())
+  orderId               Int               @unique
+  customerId                Int
+  paymentMethod         PaymentMethod
+  paymentStatus         PaymentStatus     @default(PENDING)
+  shippingFee           Decimal           @db.Decimal(10,2)
+  totalAmount           Decimal           @db.Decimal(10,2)
+  currency              String            @default("EGP")
+  createdAt             DateTime          @default(now())
+
+  order                 Order             @relation(fields: [orderId], references: [id])
+  customer              Customer          @relation(fields:[customerId] , references:[id])
+
+  details               TransactionDetails?
+  audit                 TransactionAudit[]
+}
+
+model TransactionDetails {
+  id                    Int           @id @default(autoincrement())
+  transactionId         Int           @unique
+  provider              String?       // "Stripe" , "PayMob"
+  providerTransactionId String?       @unique
+  status                TransactionStatus @default(PENDING)
+  amount                Decimal       @db.Decimal(10,2)
+  details               Json?         // raw response from gateway
+
+  transaction           Transaction   @relation(fields: [transactionId], references: [id])
+}
+
+model TransactionAudit {
+  id            Int               @id @default(autoincrement())
+  transactionId Int
+  oldStatus     PaymentStatus
+  newStatus     PaymentStatus
+  note          String?
+  changedAt     DateTime          @default(now())
+
+  transaction   Transaction       @relation(fields: [transactionId], references: [id])
 }
