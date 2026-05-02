@@ -3,148 +3,158 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Starting SQL seeding...");
+  console.log("🌱 Seeding with SQL...");
 
-  // =========================
-  // USERS
-  // =========================
+  // ─── USERS ───────────────────────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`
     INSERT INTO "User" (id, name, email)
-    VALUES 
-      (1, 'John Doe', 'john@test.com'),
-      (2, 'Jane Doe', 'jane@test.com')
+    VALUES
+      (1, 'John Doe',   'john@test.com'),
+      (2, 'Jane Doe',   'jane@test.com'),
+      (3, 'Ali Hassan', 'ali@test.com')
     ON CONFLICT (email) DO NOTHING;
   `);
 
-  // =========================
-  // CUSTOMERS
-  // =========================
+  // ─── CUSTOMERS ───────────────────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`
     INSERT INTO "Customer" (id, "userId")
-    VALUES 
+    VALUES
       (1, 1),
-      (2, 2)
+      (2, 2),
+      (3, 3)
     ON CONFLICT ("userId") DO NOTHING;
   `);
 
-  // =========================
-  // RESTAURANTS
-  // =========================
+  // ─── RESTAURANTS ─────────────────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`
     INSERT INTO "Restaurant" (id, name)
-    VALUES 
-      (1, 'Foodlify')
+    VALUES
+      (1, 'Foodlify'),
+      (2, 'Pizza Palace')
     ON CONFLICT (id) DO NOTHING;
   `);
 
-  // =========================
-  // MENUS
-  // =========================
+  // ─── MENUS ───────────────────────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`
     INSERT INTO "Menu" (id, "restaurantId")
-    VALUES 
-      (1, 1)
+    VALUES
+      (1, 1),
+      (2, 2)
     ON CONFLICT (id) DO NOTHING;
   `);
 
-  // =========================
-  // MENU ITEMS
-  // =========================
+  // ─── MENU ITEMS ──────────────────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`
     INSERT INTO "MenuItem" (id, "menuId", "itemName", price, stock)
-    VALUES 
-      (1, 1, 'Burger', 10.00, 50),
-      (2, 1, 'Pizza', 15.00, 40),
-      (3, 1, 'Pasta', 12.00, 30)
+    VALUES
+      (1, 1, 'Burger',        10.00, 50),
+      (2, 1, 'Pizza',         15.00, 40),
+      (3, 1, 'Pasta',         12.00, 30),
+      (4, 2, 'Margherita',    18.00, 25),
+      (5, 2, 'Pepperoni',     20.00, 20),
+      (6, 2, 'Garlic Bread',   5.00, 60)
     ON CONFLICT (id) DO NOTHING;
   `);
 
-  // =========================
-  // CARTS
-  // =========================
+  // ─── ADDRESSES ───────────────────────────────────────────────────────────
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO "Address" (id, "customerId", "addressLine", city, government, "postalCode")
+    VALUES
+      (1, 1, '12 Tahrir Square',    'Cairo',       'Cairo',    '11511'),
+      (2, 1, '5 Corniche El Nil',   'Giza',        'Giza',     '12511'),
+      (3, 2, '88 El Nasr Road',     'Cairo',       'Cairo',    '11765'),
+      (4, 3, '3 Port Said Street',  'Alexandria',  'Alex',     '21519')
+    ON CONFLICT (id) DO NOTHING;
+  `);
+
+  // ─── CARTS ───────────────────────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`
     INSERT INTO "Cart" (id, "customerId", "restaurantId", status, "createdAt")
-    VALUES 
-      (1, 1, 1, true, NOW()),
-      (2, 2, 1, true, NOW())
+    VALUES
+      (1, 1, 1, true,  NOW()),
+      (2, 2, 1, true,  NOW()),
+      (3, 3, 2, false, NOW())
     ON CONFLICT (id) DO NOTHING;
   `);
 
-  // =========================
-  // CART ITEMS
-  // =========================
+  // ─── CART ITEMS ──────────────────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`
-    INSERT INTO "CartItem" (id, "cartId", "menuItemId", quantity)
-    VALUES 
-      (1, 1, 1, 2),
-      (2, 1, 2, 1),
-      (3, 2, 3, 3)
+    INSERT INTO "CartItem" ("cartId", "menuItemId", quantity)
+    VALUES
+      (1, 1, 2),
+      (1, 2, 1),
+      (2, 3, 3),
+      (3, 4, 1),
+      (3, 6, 2)
     ON CONFLICT ("cartId", "menuItemId") DO NOTHING;
   `);
 
-  // =========================
-  // ADDRESSES
-  // =========================
-  await prisma.$executeRawUnsafe(`
-    INSERT INTO "Address" (id, "customerId", "addressLine", city, government, "postalCode")
-    VALUES 
-      (1, 1, 'Nasr City Street 1', 'Cairo', 'Cairo', '11311'),
-      (2, 2, 'Dokki Street 5', 'Giza', 'Giza', '12611')
-    ON CONFLICT (id) DO NOTHING;
-  `);
-
-  // =========================
-  // ORDERS
-  // =========================
+  // ─── ORDERS ──────────────────────────────────────────────────────────────
+  // Order 1: John – Foodlify – DELIVERED – CARD
   await prisma.$executeRawUnsafe(`
     INSERT INTO "Order" (id, "customerId", "restaurantId", "addressId", status, "totalPrice", "paymentMethod", notes, "createdAt")
-    VALUES 
-      (1, 1, 1, 1, 'PENDING', 25.00, 'CASH', 'Leave at door', NOW())
+    VALUES
+      (1, 1, 1, 1, 'DELIVERED', 35.00, 'CARD',   'Extra ketchup please',  NOW() - INTERVAL '3 days'),
+      (2, 1, 1, 2, 'PENDING',   24.00, 'CASH',    NULL,                   NOW() - INTERVAL '1 hour'),
+      (3, 2, 1, 3, 'PREPARING', 36.00, 'WALLET',  'No onions',            NOW() - INTERVAL '30 minutes'),
+      (4, 3, 2, 4, 'CANCELLED', 43.00, 'APPLE_PAY','Urgent order',        NOW() - INTERVAL '2 days'),
+      (5, 2, 2, 3, 'PENDING',   25.00, 'CARD',    NULL,                   NOW() - INTERVAL '5 minutes')
     ON CONFLICT (id) DO NOTHING;
   `);
 
-  // =========================
-  // ORDER ITEMS
-  // =========================
+  // ─── ORDER ITEMS ─────────────────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`
     INSERT INTO "OrderItem" (id, "orderId", "menuItemId", "itemName", price, quantity, "itemTotal")
-    VALUES 
-      (1, 1, 1, 'Burger', 10.00, 2, 20.00),
-      (2, 1, 2, 'Pizza', 15.00, 1, 15.00)
+    VALUES
+      -- Order 1: Burger x2 + Pizza x1
+      (1,  1, 1, 'Burger', 10.00, 2, 20.00),
+      (2,  1, 2, 'Pizza',  15.00, 1, 15.00),
+      -- Order 2: Pasta x2
+      (3,  2, 3, 'Pasta',  12.00, 2, 24.00),
+      -- Order 3: Pasta x3
+      (4,  3, 3, 'Pasta',  12.00, 3, 36.00),
+      -- Order 4: Margherita x1 + Pepperoni x1 + Garlic Bread x1
+      (5,  4, 4, 'Margherita',  18.00, 1, 18.00),
+      (6,  4, 5, 'Pepperoni',   20.00, 1, 20.00),
+      (7,  4, 6, 'Garlic Bread', 5.00, 1,  5.00),
+      -- Order 5: Pepperoni x1 + Garlic Bread x1
+      (8,  5, 5, 'Pepperoni',   20.00, 1, 20.00),
+      (9,  5, 6, 'Garlic Bread', 5.00, 1,  5.00)
     ON CONFLICT (id) DO NOTHING;
   `);
 
-  // =========================
-  // TRANSACTIONS
-  // =========================
+  // ─── TRANSACTIONS ────────────────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`
     INSERT INTO "Transaction" (id, "orderId", "customerId", "paymentMethod", "paymentStatus", "shippingFee", "totalAmount", currency, "createdAt")
-    VALUES 
-      (1, 1, 1, 'CASH', 'PENDING', 5.00, 30.00, 'EGP', NOW())
+    VALUES
+      (1, 1, 1, 'CARD',      'PAID',    5.00, 40.00, 'EGP', NOW() - INTERVAL '3 days'),
+      (2, 2, 1, 'CASH',      'PENDING', 5.00, 29.00, 'EGP', NOW() - INTERVAL '1 hour'),
+      (3, 3, 2, 'WALLET',    'PENDING', 5.00, 41.00, 'EGP', NOW() - INTERVAL '30 minutes'),
+      (4, 4, 3, 'APPLE_PAY', 'REFUNDED',5.00, 48.00, 'EGP', NOW() - INTERVAL '2 days'),
+      (5, 5, 2, 'CARD',      'PENDING', 5.00, 30.00, 'EGP', NOW() - INTERVAL '5 minutes')
     ON CONFLICT ("orderId") DO NOTHING;
   `);
 
-  // =========================
-  // TRANSACTION DETAILS
-  // =========================
+  // ─── TRANSACTION DETAILS ─────────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`
     INSERT INTO "TransactionDetails" (id, "transactionId", provider, "providerTransactionId", status, amount, details)
-    VALUES 
-      (1, 1, 'PayMob', 'TXN_123456', 'PENDING', 30.00, '{"source":"seed"}')
+    VALUES
+      (1, 1, 'Stripe',  'stripe_txn_001', 'SUCCESS', 40.00, '{"charge_id": "ch_001", "last4": "4242"}'),
+      (2, 4, 'PayMob',  'paymob_txn_004', 'FAILED',  48.00, '{"error": "insufficient_funds"}')
     ON CONFLICT ("transactionId") DO NOTHING;
   `);
 
-  // =========================
-  // TRANSACTION AUDIT
-  // =========================
+  // ─── TRANSACTION AUDIT ───────────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`
     INSERT INTO "TransactionAudit" (id, "transactionId", "oldStatus", "newStatus", note, "changedAt")
-    VALUES 
-      (1, 1, 'PENDING', 'PENDING', 'Seed entry', NOW())
+    VALUES
+      (1, 1, 'PENDING', 'PAID',     'Payment confirmed by Stripe',     NOW() - INTERVAL '3 days'),
+      (2, 4, 'PENDING', 'FAILED',   'Insufficient funds via PayMob',   NOW() - INTERVAL '2 days'),
+      (3, 4, 'FAILED',  'REFUNDED', 'Auto-refund triggered after fail', NOW() - INTERVAL '2 days' + INTERVAL '1 hour')
     ON CONFLICT (id) DO NOTHING;
   `);
 
-  console.log("✅ Seeding completed successfully");
+  console.log("✅ SQL seeding completed");
 }
 
 main()
