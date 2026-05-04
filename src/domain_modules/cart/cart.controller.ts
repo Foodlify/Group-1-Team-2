@@ -7,13 +7,14 @@ import {
 } from 'http-status-codes';
 
 export const addItem = asyncHandler(async (req: Request, res: Response) => {
-  const { menuItemId, quantity } = req.body;
+  const { menuItemId, quantity, restaurantId } = req.body;
   const userId = req.userId as number;
 
   const updatedCart = await cartService.addToCart(
     userId,
     menuItemId,
-    quantity
+    quantity,
+    restaurantId
   );
 
   sendSucess(res,{message:"Item added to cart successfully",statusCode:StatusCodes.CREATED,data:updatedCart})
@@ -32,20 +33,20 @@ export const viewCart = asyncHandler(async (req: Request, res: Response) => {
 
 export const modifyCart = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.userId as number;
-    const { menuItemId, quantity } = req.body;
+    const { menuItemId, quantity, restaurantId } = req.body;
 
-    const cart = await cartService.modifyCart(userId, menuItemId, quantity);
+    const cart = await cartService.modifyCart(userId, menuItemId, quantity, restaurantId);
 
     sendSucess(res,{message: "Cart modified successfully",statusCode:StatusCodes.OK,data:cart})
   
 });
 
 export const removeItem = asyncHandler(async (req: Request, res: Response) => {
-    const userId = 100304;
+    const userId = 1;
     const  menuItemId  = Number(req.params.menuItemId);
 
-   const cart = await cartService.removeItem(userId, menuItemId);
- sendSucess(res,{message:  "Item removed from cart successfully",statusCode:StatusCodes.OK,data:cart})
+    const cart = await cartService.removeItem(userId, menuItemId);
+    sendSucess(res,{message:  "Item removed from cart successfully",statusCode:StatusCodes.OK,data:cart})
 
 });
 
