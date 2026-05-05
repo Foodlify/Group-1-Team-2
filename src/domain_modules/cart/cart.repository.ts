@@ -36,14 +36,13 @@ export const addOrUpdateCartItem = async (
 ) => {
   return prisma.cartItem.upsert({
     where: {
-      cartId_menuItemId  : { cartId: cartId, menuItemId: menuItemId },
+      cartId_menuItemId: { cartId: cartId, menuItemId: menuItemId }
     },
-    update: { quantity, price },
+    update: { quantity },
     create: {
       cartId: cartId,
       menuItemId: menuItemId,
       quantity,
-      price,
     },
   });
 };
@@ -78,8 +77,6 @@ export const getCartByUserId = async (userId: number) => {
     
 };
 
-
-
 export const updateCartItem = async (cartItemId: number, quantity: number) => {
     return await prisma.cartItem.update({
         where: { id: cartItemId },
@@ -91,14 +88,12 @@ export const createCartItem = async (
     cartId: number,
     menuItemId: number,
     quantity: number,
-    price: Decimal
 ) => {
     return await prisma.cartItem.create({
         data: {
             cartId: cartId,
             menuItemId: menuItemId,
             quantity,
-            price,
         },
     });
 };

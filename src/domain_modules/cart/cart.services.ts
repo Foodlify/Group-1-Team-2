@@ -2,10 +2,23 @@ import * as cartRepo from "./cart.repository";
 import AppError from "../../utils/appError";
 import { buildCartResponse } from "../../shared/cart.mapper";
 import {	StatusCodes } from 'http-status-codes';
-import { MenuItemNotFoundException, StockNotEnoughException, RequiredFieldsException, InvalidQuantityException} from "../../shared/exceptions/MenuItem.exception";
+import { MenuItemNotFoundException, StockNotEnoughException } from "../../shared/exceptions/MenuItem.exception";
 import { CartNotFoundExeption, MultipleRestaurantCartException } from "../../shared/exceptions/Cart.exception";
-import { Cart, MenuItem } from "./cart.model";
+import { MenuItem } from "./cart.model";
 import { Decimal } from "@prisma/client/runtime/library";
+
+export const addToCart = async (userId: number, menuItemId: number, quantity: number, restaurantId: number) => {
+
+  const menuItem = await cartRepo.findMenuItemById(menuItemId);
+
+  validateMenuItem(menuItem, quantity, menuItemId);
+
+  let cart = await getValidCartForMenuItem(userId, restaurantId);
+
+  await addItemToCart(cart.id, menuItemId, quantity, menuItem.price);
+
+  return await cartRepo.getCartWithItems(cart.id);
+};
 
 function validateMenuItem(menuItem: MenuItem | null,quantity: number,menuItemId: number): asserts menuItem is MenuItem {
   if (!menuItem) {
@@ -16,15 +29,6 @@ function validateMenuItem(menuItem: MenuItem | null,quantity: number,menuItemId:
     throw new StockNotEnoughException(menuItemId,menuItem.stock);
   }
 }
-
-const addItemToCart = async (cartId: number,menuItemId: number,quantity: number,price: Decimal) => {
-  await cartRepo.addOrUpdateCartItem(
-    cartId,
-    menuItemId,
-    quantity,
-    price
-  );
-};
 
 const getValidCartForMenuItem = async (userId: number, restaurantId: number) => {
   let cart = await cartRepo.findActiveCartByUserId(userId);
@@ -41,21 +45,14 @@ const getValidCartForMenuItem = async (userId: number, restaurantId: number) => 
   return cart;
 };
 
-export const addToCart = async (userId: number,menuItemId: number, quantity: number) => {
-
-  const menuItem = await cartRepo.findMenuItemById(menuItemId);
-
-  validateMenuItem(menuItem, quantity, menuItemId);
-
-  const restaurantId = menuItem.menu.restaurantId;
-
-  let cart = await getValidCartForMenuItem(userId, restaurantId);
-
-  await addItemToCart(cart.id, menuItemId, quantity, menuItem.price);
-
-  return await cartRepo.getCartWithItems(cart.id);
+const addItemToCart = async (cartId: number, menuItemId: number, quantity: number, price: Decimal) => {
+  await cartRepo.addOrUpdateCartItem(
+    cartId,
+    menuItemId,
+    quantity,
+    price
+  );
 };
-
 
 export const viewCart = async (userId: number) => {
 
@@ -73,13 +70,11 @@ export const viewCart = async (userId: number) => {
 return buildCartResponse(cart)
 }
 
-export const modifyCart = async (userId: number, menuItemId: number, quantity: number) => {
+export const modifyCart = async (userId: number, menuItemId: number, quantity: number, restaurantId: number) => {
   
   const menuItem = await cartRepo.findMenuItemById(menuItemId);
 
   validateMenuItem(menuItem, quantity, menuItemId);
-
-  const restaurantId = menuItem.menu.restaurantId;
 
   const cart = await getValidCartForMenuItem(userId, restaurantId);
 
@@ -87,8 +82,6 @@ export const modifyCart = async (userId: number, menuItemId: number, quantity: n
 
   return await cartRepo.getCartByUserId(userId);
 }
-
-
 
 export const removeItem = async (userId: number, menuItemId: number) => {
   const cart = await cartRepo.getCartByUserId(userId);
