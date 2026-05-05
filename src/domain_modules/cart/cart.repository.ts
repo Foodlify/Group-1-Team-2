@@ -120,3 +120,12 @@ export const removeCartItem = async (cartId: number, menuItemId: number) => {
         },
     });
 }
+
+export const getMenuItemById  = async(id:number ,tx:any) => {
+  return await tx.menuItem.findUnique({where:{id}})
+}
+
+
+export const lockCart = async (cartId: number,tx: any) => {
+  return await tx.cart.update({where:{id:cartId},data:{status:false}});
+};

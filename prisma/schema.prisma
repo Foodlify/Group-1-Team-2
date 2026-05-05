@@ -8,14 +8,13 @@ datasource db {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   name     String
-  email    String    @unique
+  email    String @unique
   
+  /// Optional one-to-one relation with Customer
+  /// Not every user has an associated customer record
   customer Customer?
-
-
-
 }
 
 model Customer {
@@ -89,7 +88,7 @@ model Address {
   addressLine String
   city        String
   government  String
-  postalCode  String
+  postalCode  String?
 
   customer    Customer @relation(fields: [customerId], references: [id])
   orders      Order[]
@@ -109,6 +108,7 @@ model Order {
   customerId Int
   restaurantId Int
   addressId Int
+  phone  String
   status OrderStatus @default(PENDING)
   totalPrice Decimal @db.Decimal(10,2)
   paymentMethod PaymentMethod 

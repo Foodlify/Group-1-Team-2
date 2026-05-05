@@ -14,8 +14,7 @@ export const buildCartResponse = (cart: any) => {
   );
 
   return {
-    cartId: cart.id,
-    status: cart.status,
+   ...cart,
     items: formattedItems,
     totalPrice,
     itemCount: formattedItems.length,

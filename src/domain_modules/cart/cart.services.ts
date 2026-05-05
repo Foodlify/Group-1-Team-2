@@ -26,7 +26,7 @@ function validateMenuItem(menuItem: MenuItem | null,quantity: number,menuItemId:
   }
 
   if (menuItem.stock < quantity) {
-    throw new StockNotEnoughException(menuItemId);
+    throw new StockNotEnoughException(menuItemId,menuItem.stock);
   }
 }
 
@@ -61,6 +61,7 @@ export const viewCart = async (userId: number) => {
   if (!cart) {
     return {
       cartId: null,
+      
       items: [],
       totalPrice: 0,
       itemCount: 0
@@ -107,4 +108,8 @@ export const clearCart = async (userId: number) => {
   await cartRepo.clearCartItems(cart.id);
 
   return await cartRepo.getCartByUserId(userId);
+};
+
+export const lockCart = async (cartId: number,tx: any) => {
+  return await cartRepo.lockCart(cartId,tx);
 };

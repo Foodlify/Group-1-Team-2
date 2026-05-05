@@ -68,6 +68,14 @@ async function main() {
     ON CONFLICT ("cartId", "menuItemId") DO NOTHING;
   `);
 
+
+  await prisma.$executeRawUnsafe(`SELECT setval('"Cart_id_seq"', (SELECT MAX(id) FROM "Cart"))`);
+  await prisma.$executeRawUnsafe(`SELECT setval('"CartItem_id_seq"', (SELECT MAX(id) FROM "CartItem"))`);
+  await prisma.$executeRawUnsafe(`SELECT setval('"User_id_seq"', (SELECT MAX(id) FROM "User"))`);
+  await prisma.$executeRawUnsafe(`SELECT setval('"Customer_id_seq"', (SELECT MAX(id) FROM "Customer"))`);
+  await prisma.$executeRawUnsafe(`SELECT setval('"Restaurant_id_seq"', (SELECT MAX(id) FROM "Restaurant"))`);
+  await prisma.$executeRawUnsafe(`SELECT setval('"Menu_id_seq"', (SELECT MAX(id) FROM "Menu"))`);
+  await prisma.$executeRawUnsafe(`SELECT setval('"MenuItem_id_seq"', (SELECT MAX(id) FROM "MenuItem"))`);
   console.log("✅ SQL seeding completed");
 }
 
@@ -79,3 +87,5 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+  
