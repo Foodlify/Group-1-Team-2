@@ -12,8 +12,8 @@ export class MenuItemNotFoundException extends Error {
 export class StockNotEnoughException extends Error {
   public statusCode = StatusCodes.BAD_REQUEST;
 
-  constructor(menuItemId: number) {
-    super(`Not enough stock available for product with id ${menuItemId}`);
+  constructor(menuItemId: number,menuItemStock:number) {
+    super(`Not enough stock available for product with id ${menuItemId}, avaliable: ${menuItemStock}`);
     this.name = "StockNotEnoughException";
   }
 }
@@ -35,4 +35,5 @@ export class InvalidQuantityException extends Error {
     this.name = "InvalidQuantityException";
   }
 }
+
 

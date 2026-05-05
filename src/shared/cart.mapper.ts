@@ -1,5 +1,5 @@
 export const buildCartResponse = (cart: any) => {
-  const formattedItems = cart.items.map((item: any) => ({
+  const formattedItems = cart.cartItems.map((item: any) => ({
     itemId: item.id,
     productId: item.menuItem.id,
     name: item.menuItem.name,
@@ -14,8 +14,7 @@ export const buildCartResponse = (cart: any) => {
   );
 
   return {
-    cartId: cart.id,
-    status: cart.status,
+   ...cart,
     items: formattedItems,
     totalPrice,
     itemCount: formattedItems.length,
