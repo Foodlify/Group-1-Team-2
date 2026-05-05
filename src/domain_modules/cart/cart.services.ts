@@ -5,6 +5,7 @@ import {	StatusCodes } from 'http-status-codes';
 import { MenuItemNotFoundException, StockNotEnoughException } from "../../shared/exceptions/MenuItem.exception";
 import { CartNotFoundExeption, MultipleRestaurantCartException } from "../../shared/exceptions/Cart.exception";
 import { MenuItem } from "./cart.model";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export const addToCart = async (userId: number, menuItemId: number, quantity: number, restaurantId: number) => {
 
@@ -44,7 +45,7 @@ const getValidCartForMenuItem = async (userId: number, restaurantId: number) => 
   return cart;
 };
 
-const addItemToCart = async (cartId: number, menuItemId: number, quantity: number, price: number) => {
+const addItemToCart = async (cartId: number, menuItemId: number, quantity: number, price: Decimal) => {
   await cartRepo.addOrUpdateCartItem(
     cartId,
     menuItemId,

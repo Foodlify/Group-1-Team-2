@@ -32,7 +32,7 @@ export const addOrUpdateCartItem = async (
   cartId: number,
   menuItemId: number,
   quantity: number,
-  price: number
+  price: Decimal
 ) => {
   return prisma.cartItem.upsert({
     where: {
@@ -88,14 +88,12 @@ export const createCartItem = async (
     cartId: number,
     menuItemId: number,
     quantity: number,
-    price: Decimal
 ) => {
     return await prisma.cartItem.create({
         data: {
             cartId: cartId,
             menuItemId: menuItemId,
             quantity,
-            price,
         },
     });
 };

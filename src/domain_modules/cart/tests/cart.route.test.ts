@@ -19,12 +19,12 @@ describe('Cart Routes', () => {
 
       const response = await request(app)
         .post('/api/v1/cart/items')
-        .send({ menuItemId: 2, quantity: 3 });
+        .send({ menuItemId: 2, quantity: 3, restaurantId: 1 });
 
       expect(response.status).toBe(201);
       expect(response.body.message).toBe("Item added to cart successfully");
       expect(response.body.data).toEqual(mockResult);
-      expect(mockedCartService.addToCart).toHaveBeenCalledWith(1, 2, 3);
+      expect(mockedCartService.addToCart).toHaveBeenCalledWith(1, 2, 3, 1);
     });
 
     it('should return 400 for invalid quantities', async () => {
@@ -44,7 +44,8 @@ describe('Cart Routes', () => {
       const response = await request(app).get('/api/v1/cart');
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockResult);
+      expect(response.body.data).toEqual(mockResult);
+      expect(response.body.status).toBe("success");
       expect(mockedCartService.viewCart).toHaveBeenCalledWith(1); 
     });
   });
@@ -56,11 +57,11 @@ describe('Cart Routes', () => {
 
       const response = await request(app)
         .put('/api/v1/cart')
-        .send({ menuItemId: 2, quantity: 5 });
+        .send({ menuItemId: 2, quantity: 5, restaurantId: 1 });
 
       expect(response.status).toBe(200);
       expect(response.body.message).toBe("Cart modified successfully");
-      expect(mockedCartService.modifyCart).toHaveBeenCalledWith(1, 2, 5);
+      expect(mockedCartService.modifyCart).toHaveBeenCalledWith(1, 2, 5, 1);
     });
   });
 
