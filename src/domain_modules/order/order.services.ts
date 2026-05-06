@@ -18,10 +18,10 @@ export const createOrderService = async (userId: number, body: any) => {
 
     const orderId = await prisma.$transaction(async (tx) => {
 
-        // 4.1 تحقق من الـ stock
+        // 4.1 Check the stock
         const menuItemMap = await checkMenuItemsExistAndStock(cart.items, tx);
 
-        // 4.2 جيب أو إنشاء الـ address
+        // 4.2 Find or create the address
         let addressId: number;
 
         if (body.address.type === "existing") {
@@ -33,7 +33,7 @@ export const createOrderService = async (userId: number, body: any) => {
             addressId = newAddress.id;
         }
 
-        // 4.3 إنشاء الـ Order
+       // 4.3 Creating the Order
         const order = await orderRepo.createOrder({
             customerId: customer.id,
             restaurantId: cart.restaurantId,
@@ -44,7 +44,7 @@ export const createOrderService = async (userId: number, body: any) => {
             notes: body.notes,
         }, tx);
 
-        // 4.4 إنشاء الـ OrderItems
+       // 4.4 Creating OrderItems
         const orderItems = cart.items.map((item: any) => {
             const menuItem = menuItemMap.get(item.productId);
             return {
@@ -58,16 +58,16 @@ export const createOrderService = async (userId: number, body: any) => {
         });
         await orderRepo.createOrderItems(orderItems, tx);
 
-        // 4.5 قلل الـ stock
+        // 4.5 Reduce stock
         await orderRepo.updateMenuItemStock(
             orderItems.map((item: any) => ({ id: item.menuItemId, quantity: item.quantity })),
             tx
         );
 
-        // 4.6 قفل الـ cart
+       // 4.6 Lock the cart
         await CartServices.lockCart(cart.id, tx);
 
-        return order.id; // ← التغيير الوحيد
+        return order.id;   
     });
 
     return await orderRepo.getOrderById(orderId);
