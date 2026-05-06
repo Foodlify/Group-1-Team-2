@@ -9,7 +9,7 @@ declare global {
 }
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  req.userId = 2;
+  req.userId = 1;
   
   next();
 };
