@@ -8,8 +8,7 @@ export const createOrderSchema = z.object({
       addressId: z.number().int().positive()
     }),
     z.object({
-    type: z.literal("new"),
-  
+        type: z.literal("new"),
         addressLine: z.string({ required_error: "addressLine is required" }).min(5),
         city: z.string({ required_error: "city is required" }).min(3),
         government: z.string({ required_error: "government is required" }).min(3),

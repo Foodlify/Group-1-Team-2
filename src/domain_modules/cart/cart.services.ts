@@ -1,4 +1,5 @@
 import * as cartRepo from "./cart.repository";
+import * as customerServices from "../customer/customer.services";
 import AppError from "../../utils/appError";
 import { buildCartResponse } from "../../shared/cart.mapper";
 import {	StatusCodes } from 'http-status-codes';
@@ -6,6 +7,7 @@ import { MenuItemNotFoundException, StockNotEnoughException } from "../../shared
 import { CartNotFoundExeption, MultipleRestaurantCartException } from "../../shared/exceptions/Cart.exception";
 import { MenuItem } from "./cart.model";
 import { Decimal } from "@prisma/client/runtime/library";
+import prisma from "../../lib/prisma";
 
 export const addToCart = async (userId: number, menuItemId: number, quantity: number, restaurantId: number) => {
 
@@ -13,7 +15,9 @@ export const addToCart = async (userId: number, menuItemId: number, quantity: nu
 
   validateMenuItem(menuItem, quantity, menuItemId);
 
-  let cart = await getValidCartForMenuItem(userId, restaurantId);
+  const customer = await customerServices.getCustomerByUserId(userId);
+  
+  let cart = await getValidCartForMenuItem(customer.id, restaurantId);
 
   await addItemToCart(cart.id, menuItemId, quantity, menuItem.price);
 
@@ -30,12 +34,11 @@ function validateMenuItem(menuItem: MenuItem | null,quantity: number,menuItemId:
   }
 }
 
-const getValidCartForMenuItem = async (userId: number, restaurantId: number) => {
-  let cart = await cartRepo.findActiveCartByUserId(userId);
+const getValidCartForMenuItem = async (customerId: number, restaurantId: number) => {
+  let cart = await cartRepo.findActiveCartByCustomerId(customerId);
 
   if (!cart) {
-    cart = await cartRepo.createCart(userId, restaurantId);
-    return cart;
+   return await cartRepo.createCart(customerId, restaurantId);
   }
 
   if (cart.restaurantId !== restaurantId) {

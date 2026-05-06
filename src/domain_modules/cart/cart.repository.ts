@@ -10,21 +10,32 @@ export const findMenuItemById = async (id: number) => {
   });
 };
 
-export const findActiveCartByUserId = async (userId: number) => {
+export const findActiveCartByCustomerId = async (customerId: number) => {
   return prisma.cart.findFirst({
-    where: { customerId: userId, status: true },
+    where: { customerId: customerId, status: true },
   });
 };
 
 export const createCartFirstTime = async (userId: number) => {
   return prisma.cart.create({
-    data: { customerId: userId, status: true, restaurantId: 0 },
+    data: { 
+       customerId: userId, 
+       status: true,
+      restaurantId: 0 },
   });
 };
 
-export const createCart = async (userId: number, restaurantId: number) => {
+export const createCart = async (customerId: number, restaurantId: number) => {
   return prisma.cart.create({
-    data: { customerId: userId, status: true, restaurantId: restaurantId },
+    data: {
+      status: true,
+      customer: {
+        connect: { id: customerId }
+      },
+      restaurant: {
+        connect: { id: restaurantId }
+      }
+    },
   });
 };
 
