@@ -10,10 +10,9 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 
    const order = await orderService.createOrderService(userId, body);
 
-   sendSucess(res,{message:"Order placed successfully",statusCode:StatusCodes.CREATED,data:order})
-   res.status(StatusCodes.CREATED).json({
-    status: "success",
-    message: "Order placed successfully",
-    data: order
-})
-}); 
+   sendSucess(res, {
+     message: "Order placed successfully",
+     statusCode: StatusCodes.CREATED,
+     data: order
+   })
+});

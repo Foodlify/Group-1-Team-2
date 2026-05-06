@@ -2,7 +2,7 @@ export const buildCartResponse = (cart: any) => {
   const formattedItems = cart.cartItems.map((item: any) => ({
     itemId: item.id,
     productId: item.menuItem.id,
-    name: item.menuItem.name,
+    name: item.menuItem.itemName,
     price: item.menuItem.price,
     quantity: item.quantity,
     itemTotal: item.quantity * item.menuItem.price,

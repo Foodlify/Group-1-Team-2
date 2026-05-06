@@ -67,7 +67,7 @@ export const createOrderService = async (userId: number, body: any) => {
         // 4.6 قفل الـ cart
         await CartServices.lockCart(cart.id, tx);
 
-        return order.id; // ← التغيير الوحيد
+        return order.id; 
     });
 
     return await orderRepo.getOrderById(orderId);
