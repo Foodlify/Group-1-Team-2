@@ -83,9 +83,6 @@ export const getCartByUserId = async (userId: number) => {
             },
         },
     });
-
-
-    
 };
 
 export const updateCartItem = async (cartItemId: number, quantity: number) => {
@@ -94,6 +91,7 @@ export const updateCartItem = async (cartItemId: number, quantity: number) => {
         data: { quantity },
     });
 };
+
 
 export const createCartItem = async (
     cartId: number,

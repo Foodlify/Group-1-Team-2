@@ -5,6 +5,7 @@ import * as AddressServices from "../address/address.service";
 import { CartNotFoundExeption } from "../../shared/exceptions/Cart.exception";
 import { checkMenuItemsExistAndStock } from "./order.helpers";
 import prisma from "../../lib/prisma";
+import * as orderExceptions from "../../shared/exceptions/order.exception";
 
 export const createOrderService = async (userId: number, body: any) => {
     
@@ -72,3 +73,18 @@ export const createOrderService = async (userId: number, body: any) => {
 
     return await orderRepo.getOrderById(orderId);
 };
+
+
+export const getAllOrders = async (userId: number) => {
+    return await orderRepo.findAllOrdersByUserId(userId);
+};
+
+export const getOrderById = async (userId: number, orderId: number) => {
+    const order = await orderRepo.findOrderByIdAndUserId(orderId, userId);
+    if (!order) {
+        throw new orderExceptions.OrderNotFoundException();
+    }
+    return order;
+};
+
+

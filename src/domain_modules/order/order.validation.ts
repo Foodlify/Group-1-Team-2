@@ -20,3 +20,7 @@ export const createOrderSchema = z.object({
     paymentMethod: z.enum(["CASH", "CARD"], { required_error: "paymentMethod is required" }),
     notes: z.string().optional(),
 })
+
+export const getOrderSchema = z.object({
+        orderId: z.coerce.number().int().positive(),
+});
