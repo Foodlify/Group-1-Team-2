@@ -50,13 +50,13 @@ async function main() {
   `);
 
   // CARTS ✅ (تم تصحيح status بدل isActive)
-  await prisma.$executeRawUnsafe(`
-    INSERT INTO "Cart" (id, "customerId", "restaurantId", status, "createdAt")
-    VALUES
-      (1, 1, 1, true, NOW()),
-      (2, 2, 1, true, NOW())
-    ON CONFLICT (id) DO NOTHING;
-  `);
+await prisma.$executeRawUnsafe(`
+  INSERT INTO "Cart" (id, "customerId", "restaurantId", status, "createdAt")
+  VALUES
+    (1, 1, 1, 'ACTIVE', NOW()),
+    (2, 2, 1, 'ACTIVE', NOW())
+  ON CONFLICT (id) DO NOTHING;
+`);
 
   // CART ITEMS
   await prisma.$executeRawUnsafe(`

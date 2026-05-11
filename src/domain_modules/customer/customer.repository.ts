@@ -4,3 +4,4 @@ import prisma from "../../lib/prisma"
      return await prisma.customer.findUnique({where:{userId}})
     }
    
+    

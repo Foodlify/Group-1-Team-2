@@ -15,3 +15,12 @@ export class MultipleRestaurantCartException extends Error {
     this.name = "MultipleRestaurantCartException"
    }
 }
+
+
+export class CartLockedException extends Error {
+   public statusCode = StatusCodes.BAD_REQUEST
+   constructor(){
+    super(`Cart is locked`);
+    this.name = "CartLockedException"
+   }
+}

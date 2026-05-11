@@ -7,7 +7,6 @@ import { MenuItemNotFoundException, StockNotEnoughException } from "../../shared
 import { CartNotFoundExeption, MultipleRestaurantCartException } from "../../shared/exceptions/Cart.exception";
 import { MenuItem } from "./cart.model";
 import { Decimal } from "@prisma/client/runtime/library";
-import prisma from "../../lib/prisma";
 
 export const addToCart = async (userId: number, menuItemId: number, quantity: number, restaurantId: number) => {
 
@@ -59,7 +58,8 @@ const addItemToCart = async (cartId: number, menuItemId: number, quantity: numbe
 
 export const viewCart = async (userId: number) => {
 
-  const cart = await cartRepo.getCartByUserId(userId);
+  const customer = await customerServices.getCustomerByUserId(userId);
+  const cart = await cartRepo.getCartByCustomerId(customer.id);
   
   if (!cart) {
     return {
@@ -74,20 +74,25 @@ return buildCartResponse(cart)
 }
 
 export const modifyCart = async (userId: number, menuItemId: number, quantity: number, restaurantId: number) => {
-  
+  const customer = await customerServices.getCustomerByUserId(userId);
+
   const menuItem = await cartRepo.findMenuItemById(menuItemId);
 
   validateMenuItem(menuItem, quantity, menuItemId);
 
-  const cart = await getValidCartForMenuItem(userId, restaurantId);
+  const cart = await getValidCartForMenuItem(customer.id, restaurantId);
 
   await cartRepo.addOrUpdateCartItem(cart.id, menuItemId, quantity, menuItem.price);
 
-  return await cartRepo.getCartByUserId(userId);
+
+  return await cartRepo.getCartByCustomerId(customer.id);
 }
 
 export const removeItem = async (userId: number, menuItemId: number) => {
-  const cart = await cartRepo.getCartByUserId(userId);
+const customer = await customerServices.getCustomerByUserId(userId);
+
+const cart= await cartRepo.getCartByCustomerId(customer.id);
+
   if (!cart) {
     throw new CartNotFoundExeption();
   }
@@ -99,20 +104,24 @@ export const removeItem = async (userId: number, menuItemId: number) => {
 
   await cartRepo.removeCartItem(cart.id, menuItemId);
 
-  return await cartRepo.getCartByUserId(userId);
+  return await cartRepo.getCartByCustomerId(customer.id);
 };
 
 export const clearCart = async (userId: number) => {
-  const cart = await cartRepo.getCartByUserId(userId);
+  const customer = await customerServices.getCustomerByUserId(userId);
+
+const cart= await cartRepo.getCartByCustomerId(customer.id);
+
   if (!cart) {
     throw new CartNotFoundExeption();
   }
 
   await cartRepo.clearCartItems(cart.id);
 
-  return await cartRepo.getCartByUserId(userId);
+  return await cartRepo.getCartByCustomerId(customer.id);
 };
 
 export const lockCart = async (cartId: number,tx: any) => {
   return await cartRepo.lockCart(cartId,tx);
 };
+

@@ -1,6 +1,6 @@
 import prisma from "../../lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
-
+import { CartStatus } from "@prisma/client";
 export const findMenuItemById = async (id: number) => {
   return prisma.menuItem.findUnique({
     where: { id },
@@ -12,7 +12,7 @@ export const findMenuItemById = async (id: number) => {
 
 export const findActiveCartByCustomerId = async (customerId: number) => {
   return prisma.cart.findFirst({
-    where: { customerId: customerId, status: true },
+    where: { customerId: customerId, status: CartStatus.ACTIVE},
   });
 };
 
@@ -20,7 +20,7 @@ export const createCartFirstTime = async (userId: number) => {
   return prisma.cart.create({
     data: { 
        customerId: userId, 
-       status: true,
+       status:  CartStatus.ACTIVE,
       restaurantId: 0 },
   });
 };
@@ -28,7 +28,7 @@ export const createCartFirstTime = async (userId: number) => {
 export const createCart = async (customerId: number, restaurantId: number) => {
   return prisma.cart.create({
     data: {
-      status: true,
+      status:  CartStatus.ACTIVE,
       customer: {
         connect: { id: customerId }
       },
@@ -69,11 +69,11 @@ export const getCartWithItems = async (cartId: number) => {
   });
 };
 
-export const getCartByUserId = async (userId: number) => {
+export const getCartByCustomerId = async (customerId: number) => {
     return await prisma.cart.findFirst({
         where: { 
-            customerId: userId,
-            status: true,
+            customerId: customerId,
+            status:  CartStatus.ACTIVE,
         },
         include: {
             cartItems: {

@@ -25,7 +25,7 @@ export const createOrderItems = async (data: any, tx: any) => {
 }
 
 export const updateMenuItemStock = async (items:{id:number,quantity: number}[], tx: any) => {
-Promise.all(
+return Promise.all(
   items.map((item:any)=>{
     return tx.menuItem.update({
       where:{id:item.id},
