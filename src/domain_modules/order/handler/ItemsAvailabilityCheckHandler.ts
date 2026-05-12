@@ -5,7 +5,7 @@ import { OrderRequest } from "../../../types/OrderRequest";
 import { OrderResponse } from "../../../types/OrderResponse";
 import { OrderHandler } from "./orderHandler";
 
-class ItemsAvailabilityCheckHandler  extends OrderHandler{
+export class ItemsAvailabilityCheckHandler  extends OrderHandler{
     async handle(request:OrderRequest , response:OrderResponse):Promise<OrderResponse>{ 
        const cartItems = await prisma.cartItem.findMany({where:{cartId:request.cartId}});
        const menuItemsId= cartItems.map(item=>item.menuItemId);
