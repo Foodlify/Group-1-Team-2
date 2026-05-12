@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { logger } from "../config/logger";
 
 const globalErrorHandler = (
   err: Error,
@@ -6,18 +7,22 @@ const globalErrorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(err);
-  if('statusCode' in err){
+  logger.error("Unhandled Exception", {
+    message: err.message,
+    stack: err.stack,
+    url: req.originalUrl,
+    method: req.method,
+  });
+  if ("statusCode" in err) {
     return res.status((err as any).statusCode).json({
-      status:'error',
-      message:(err as any).message
-    })
+      status: "error",
+      message: (err as any).message,
+    });
   }
 
-
   res.status(500).json({
-    status: 'error',
-    message: 'internal server error',
+    status: "error",
+    message: "internal server error",
   });
 };
 
