@@ -1,0 +1,26 @@
+import { PaymentMethod } from "@prisma/client";
+import { OrderRequest } from "../../../types/OrderRequest";
+import { OrderResponse } from "../../../types/OrderResponse";
+import { CardPaymentStrategy } from "../strategy/CardPaymentStrategy";
+import { CashPaymentStrategy } from "../strategy/CashPaymentStrategy";
+import {PaymentStartegy } from "../strategy/PaymentStrategy.interface";
+import { OrderHandler } from "./orderHandler";
+
+export class PaymentProcessHandler extends OrderHandler{
+  async handle(request: OrderRequest, response: OrderResponse): Promise<OrderResponse> {
+
+    const strategies: Record<PaymentMethod, PaymentStartegy> = {
+    CASH: new CashPaymentStrategy(),
+    CARD: new CardPaymentStrategy(),
+}
+    const strategy:PaymentStartegy  = strategies[request.paymentMethod];
+
+    const success = await strategy.processPayment(request);
+
+    if (!success) {
+      throw new Error("Payment failed");
+    }
+
+    return this.handleNext(request, response);
+  }
+}

@@ -57,11 +57,17 @@ model MenuItem {
   orderItems OrderItem[]
 }
 
+enum CartStatus{
+  ACTIVE
+  LOCKED
+  COMPLETED
+}
+
 model Cart {
   id           Int      @id @default(autoincrement())
   customerId   Int
   restaurantId Int
-  status       Boolean  @default(true)
+  status       CartStatus @default(ACTIVE)
   createdAt    DateTime @default(now())
 
   customer     Customer   @relation(fields: [customerId], references: [id])
@@ -94,32 +100,53 @@ model Address {
   orders      Order[]
 }
 
+
 enum OrderStatus {
-  PENDING 
-  PREPARING 
+  PENDING
+  CONFIRMED
+  PREPARING
+  OUT_FOR_DELIVERY
   DELIVERED
   CANCELLED
+  FAILED
 }
 
 
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
 
 model Order {
-  id   Int @id @default(autoincrement())
-  customerId Int
-  restaurantId Int
-  addressId Int
-  phone  String
-  status OrderStatus @default(PENDING)
-  totalPrice Decimal @db.Decimal(10,2)
-  paymentMethod PaymentMethod 
-  notes String?
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
 
-  customer Customer @relation (fields:[customerId] , references:[id])
-  address Address  @relation(fields:[addressId] , references:[id])
-  restaurant Restaurant @relation(fields:[restaurantId] ,references:[id])
+  customerId    Int
+  restaurantId  Int
+  addressId     Int
 
-  orderItem OrderItem[]
+  phone         String
+  notes         String?
+
+  status        OrderStatus @default(PENDING)
+
+  totalPrice    Decimal  @db.Decimal(10,2)
+
+  paymentMethod PaymentMethod @default(CASH)
+  paymentStatus PaymentStatus @default(PENDING)
+
+  paidAt        DateTime?
+  deliveredAt   DateTime?
+
+  createdAt     DateTime @default(now())
+
+  customer      Customer   @relation(fields: [customerId], references: [id])
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id])
+  address       Address    @relation(fields: [addressId], references: [id])
+
+  orderItems    OrderItem[]
   transaction   Transaction?
 }
 
@@ -140,15 +167,6 @@ model OrderItem {
 enum PaymentMethod {
   CASH
   CARD
-  WALLET
-  APPLE_PAY
-}
-
-enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-  REFUNDED
 }
 
 enum TransactionStatus {

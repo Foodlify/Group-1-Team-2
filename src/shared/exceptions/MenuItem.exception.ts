@@ -36,4 +36,13 @@ export class InvalidQuantityException extends Error {
   }
 }
 
+export class SomeOfItemsNotAvailableException extends Error {
+  public statusCode = StatusCodes.BAD_REQUEST;
+  
+  constructor() {
+    super("Some of the items are not available");
+    this.name = "SomeOfItemsNotAvailableException";
+  }
+}
+
 
