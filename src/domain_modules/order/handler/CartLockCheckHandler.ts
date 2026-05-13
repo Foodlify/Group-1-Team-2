@@ -24,7 +24,8 @@ export class CartCheckHandler extends OrderHandler {
             where:{id:cart.id},
             data:{status:CartStatus.LOCKED}
         });
-
+         
+        response.restaurantId = cart.restaurantId;
         return this.handleNext(request,response);
     }
 
