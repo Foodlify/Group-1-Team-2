@@ -12,9 +12,9 @@ export class FinalizeOrderHandler extends OrderHandler {
   ): Promise<OrderResponse> {
     const order = await prisma.order.create({
       data: {
-        customerId: response.customerId!,
-        restaurantId: request.restaurantId,
-        addressId: request.addressId,
+         customer:   { connect: { id: response.customerId! } },
+         restaurant: { connect: { id: response.restaurantId! } },
+         address:    { connect: { id: request.addressId! } },
         phone: request.phone,
         notes: request.notes,
         paymentMethod: request.paymentMethod,
