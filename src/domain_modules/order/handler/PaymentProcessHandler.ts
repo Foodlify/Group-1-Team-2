@@ -16,7 +16,7 @@ export class PaymentProcessHandler extends OrderHandler{
     const strategy:PaymentStartegy  = strategies[request.paymentMethod];
     console.log(`Processing payment method: ${request.paymentMethod}`);
 
-    const success = await strategy.processPayment(request);
+    const success = await strategy.processPayment(response);
 
     if (!success) {
       throw new Error("Payment failed");

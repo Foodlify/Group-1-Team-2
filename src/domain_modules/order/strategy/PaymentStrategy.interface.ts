@@ -1,5 +1,5 @@
-import { OrderRequest } from "../../../types/OrderRequest";
+import { OrderResponse } from "../../../types/OrderResponse";
 
 export interface PaymentStartegy {
-    processPayment (request:OrderRequest): Promise<boolean>
+    processPayment (response:OrderResponse): Promise<boolean>
 }
