@@ -1,4 +1,4 @@
-import { PaymentMethod } from "@prisma/client";
+import { PaymentMethod, Prisma } from "@prisma/client";
 export interface OrderRequest {
     cartId: number;        
     userId: number;    
@@ -7,4 +7,5 @@ export interface OrderRequest {
     phone: string;      
     notes?: string;        
     paymentMethod: PaymentMethod; 
+    tx?:Prisma.TransactionClient
 }

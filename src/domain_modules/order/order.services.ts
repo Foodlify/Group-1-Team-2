@@ -1,4 +1,3 @@
-
 import { OrderHandler } from "./handler/orderHandler";
 import { CartCheckHandler } from "./handler/CartLockCheckHandler";
 import { ValidateCustomerExistHandler } from "./handler/ValidateCustomerHandler";
@@ -9,19 +8,11 @@ import { PaymentProcessHandler } from "./handler/PaymentProcessHandler";
 import { OrderRequest } from "../../types/OrderRequest";
 import { OrderResponse } from "../../types/OrderResponse";
 import { logger } from "../../config/logger";
-
+import prisma from './../../lib/prisma';
 
 export const createOrder = async (
   request: OrderRequest
 ): Promise<OrderResponse> => {
-  const chain = OrderHandler.processOrder(
-    new CartCheckHandler(),
-    new ValidateCustomerExistHandler(),
-    new validateAddressHandler(),
-    new ItemsAvailabilityCheckHandler(),
-    new FinalizeOrderHandler(),
-    new PaymentProcessHandler()
-  );
 
   logger.info("Starting order creation process", {
     userId: request.userId,
@@ -29,7 +20,23 @@ export const createOrder = async (
     PaymentMethod: request.paymentMethod,
   });
 
-  const response = await chain.handle(request, {} as OrderResponse);
+  let response: OrderResponse = {} as OrderResponse;
+
+  await prisma.$transaction(async (tx) => {
+    request.tx = tx;
+
+    const chain = OrderHandler.processOrder(
+      new CartCheckHandler(),
+      new ValidateCustomerExistHandler(),
+      new validateAddressHandler(),
+      new ItemsAvailabilityCheckHandler(),
+      new FinalizeOrderHandler(),
+    );
+
+    response = await chain.handle(request, {} as OrderResponse);
+  });
+
+  await new PaymentProcessHandler().handle(request, response);
 
   logger.info("Order creation process completed", {
     orderId: response.orderId,

@@ -61,6 +61,7 @@ enum CartStatus{
   ACTIVE
   LOCKED
   COMPLETED
+  UNLOCKED
 }
 
 model Cart {

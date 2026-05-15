@@ -24,3 +24,11 @@ export class CartLockedException extends Error {
     this.name = "CartLockedException"
    }
 }
+
+export class CartAlreadyCompletedException  extends Error {
+   public statusCode = StatusCodes.BAD_REQUEST
+   constructor(){
+    super(`This cart has already been converted to an order and is marked as COMPLETED.`);
+    this.name = "CartAlreadyCompletedException "
+   }
+}

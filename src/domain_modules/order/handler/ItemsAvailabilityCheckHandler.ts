@@ -7,9 +7,10 @@ import { OrderHandler } from "./orderHandler";
 
 export class ItemsAvailabilityCheckHandler  extends OrderHandler{
     async handle(request:OrderRequest , response:OrderResponse):Promise<OrderResponse>{ 
-       const cartItems = await prisma.cartItem.findMany({where:{cartId:request.cartId}});
+      const client = request.tx ?? prisma
+      const cartItems = await client.cartItem.findMany({where:{cartId:request.cartId}});
        const menuItemsId= cartItems.map(item=>item.menuItemId);
-       const menuItems = await prisma.menuItem.findMany({where:{id:{in:menuItemsId}}});
+       const menuItems = await client.menuItem.findMany({where:{id:{in:menuItemsId}}});
     
        const menuItemMap = new Map(menuItems.map(item=>[item.id,item]));
 

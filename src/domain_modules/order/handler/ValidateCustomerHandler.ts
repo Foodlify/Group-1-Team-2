@@ -9,7 +9,8 @@ export class ValidateCustomerExistHandler extends OrderHandler {
     
     async handle(request: OrderRequest, response: OrderResponse): Promise<OrderResponse> {
         
-        const customer = await customerRepo.getCustomerByUserId(request.userId);
+        const client = request.tx ?? prisma
+        const customer = await client.customer.findUnique({where: {userId: request.userId}});
         
         if (!customer) {
             throw new CustomerNotFound(request.userId.toString());
