@@ -10,7 +10,8 @@ export class FinalizeOrderHandler extends OrderHandler {
     request: OrderRequest,
     response: OrderResponse
   ): Promise<OrderResponse> {
-    const order = await prisma.order.create({
+    const client = request.tx ?? prisma 
+    const order = await client.order.create({
       data: {
          customer:   { connect: { id: response.customerId! } },
          restaurant: { connect: { id: response.restaurantId! } },
@@ -22,11 +23,11 @@ export class FinalizeOrderHandler extends OrderHandler {
       },
     });
 
-    await prisma.orderItem.createMany({
+    await client.orderItem.createMany({
       data: response.orderItems.map((item) => ({ ...item, orderId: order.id })),
     });
 
-    await prisma.transaction.create({
+    await client.transaction.create({
       data: {
         orderId: order.id,
         customerId: response.customerId,
@@ -36,10 +37,6 @@ export class FinalizeOrderHandler extends OrderHandler {
       },
     });
 
-    await prisma.cart.update({
-      where: { id: request.cartId },
-      data: { status: CartStatus.COMPLETED },
-    });
 
     response.orderId = order.id;
 

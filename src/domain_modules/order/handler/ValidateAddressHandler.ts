@@ -6,7 +6,8 @@ import { AddressNotFoundOrNotOwnedException } from "../../../shared/exceptions/a
 
 export class validateAddressHandler extends OrderHandler{
     async handle(request: OrderRequest, response: OrderResponse): Promise<OrderResponse> {
-         const address = await prisma.address.findUnique({where: {
+        const client = request.tx ?? prisma
+        const address = await client.address.findUnique({where: {
             id: request.addressId,
             customerId: response.customerId
         } });
