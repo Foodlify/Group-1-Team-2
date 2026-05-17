@@ -6,7 +6,6 @@ import { CashPaymentStrategy } from "../strategy/CashPaymentStrategy";
 import {PaymentStartegy } from "../strategy/PaymentStrategy.interface";
 import { OrderHandler } from "./orderHandler";
 import prisma from "../../../lib/prisma";
-import { PaymentFailedException } from "../../../shared/exceptions/order.exception";
 
 export class PaymentProcessHandler extends OrderHandler{
   async handle(request: OrderRequest, response: OrderResponse): Promise<OrderResponse> {
@@ -18,11 +17,8 @@ export class PaymentProcessHandler extends OrderHandler{
     const strategy:PaymentStartegy  = strategies[request.paymentMethod];
     console.log(`Processing payment method: ${request.paymentMethod}`);
 
-    const success = await strategy.processPayment(response);
-    
-    if (!success) {
-      throw new PaymentFailedException();
-    }
+    await strategy.processPayment(response);
+
 
     await prisma.cart.update({
       where: { id: request.cartId },
