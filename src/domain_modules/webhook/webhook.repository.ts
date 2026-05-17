@@ -90,7 +90,6 @@ export const markOrderAsPaymentFailed = async (orderId: number) => {
             }
         });
 
-        // 5- unlock cart (NO schema change needed)
         await tx.cart.updateMany({
             where: {
                 customerId: order.customerId,
