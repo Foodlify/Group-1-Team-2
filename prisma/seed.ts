@@ -1,82 +1,118 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding with SQL...");
+  console.log("🌱 Seeding database...");
 
-  // USERS
-  await prisma.$executeRawUnsafe(`
-    INSERT INTO "User" (id, name, email)
-    VALUES
-      (1, 'John Doe', 'john@test.com'),
-      (2, 'Jane Doe', 'jane@test.com')
-    ON CONFLICT (email) DO NOTHING;
-  `);
+  // =========================
+  // USERS + CUSTOMERS
+  // =========================
+  const passwordHash = await bcrypt.hash("password123", 10);
 
-  // CUSTOMERS
-  await prisma.$executeRawUnsafe(`
-    INSERT INTO "Customer" (id, "userId")
-    VALUES
-      (1, 1),
-      (2, 2)
-    ON CONFLICT ("userId") DO NOTHING;
-  `);
+  await prisma.user.createMany({
+    data: [
+      {
+        id: 1,
+        name: "John Doe",
+        email: "john@test.com",
+        password: passwordHash,
+        role: "CUSTOMER",
+        phone:"01154467412"
+      },
+      {
+        id: 2,
+        name: "Jane Doe",
+        email: "jane@test.com",
+        password: passwordHash,
+        role: "CUSTOMER",
+         phone:"01094977673"
+      }
+    ],
+    skipDuplicates: true,
+  });
 
+  await prisma.customer.createMany({
+    data: [
+      { id: 1, userId: 1 },
+      { id: 2, userId: 2 }
+    ],
+    skipDuplicates: true,
+  });
+
+  // =========================
   // RESTAURANT
-  await prisma.$executeRawUnsafe(`
-    INSERT INTO "Restaurant" (id, name)
-    VALUES
-      (1, 'Foodlify')
-    ON CONFLICT (id) DO NOTHING;
-  `);
+  // =========================
+  await prisma.restaurant.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: "Foodlify"
+    }
+  });
 
+  // =========================
   // MENU
-  await prisma.$executeRawUnsafe(`
-    INSERT INTO "Menu" (id, "restaurantId")
-    VALUES
-      (1, 1)
-    ON CONFLICT (id) DO NOTHING;
-  `);
+  // =========================
+  await prisma.menu.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      restaurantId: 1
+    }
+  });
 
+  // =========================
   // MENU ITEMS
-  await prisma.$executeRawUnsafe(`
-    INSERT INTO "MenuItem" (id, "menuId", "itemName", price, stock)
-    VALUES
-      (1, 1, 'Burger', 10.00, 50),
-      (2, 1, 'Pizza', 15.00, 40),
-      (3, 1, 'Pasta', 12.00, 30)
-    ON CONFLICT (id) DO NOTHING;
-  `);
+  // =========================
+  await prisma.menuItem.createMany({
+    data: [
+      { id: 1, menuId: 1, itemName: "Burger", price: 10.00, stock: 50 },
+      { id: 2, menuId: 1, itemName: "Pizza", price: 15.00, stock: 40 },
+      { id: 3, menuId: 1, itemName: "Pasta", price: 12.00, stock: 30 }
+    ],
+    skipDuplicates: true,
+  });
 
-  // CARTS ✅ (تم تصحيح status بدل isActive)
-await prisma.$executeRawUnsafe(`
-  INSERT INTO "Cart" (id, "customerId", "restaurantId", status, "createdAt")
-  VALUES
-    (1, 1, 1, 'ACTIVE', NOW()),
-    (2, 2, 1, 'ACTIVE', NOW())
-  ON CONFLICT (id) DO NOTHING;
-`);
+  // =========================
+  // CARTS
+  // =========================
+  await prisma.cart.createMany({
+    data: [
+      {
+        id: 1,
+        customerId: 1,
+        restaurantId: 1,
+        status: "ACTIVE",
+        createdAt: new Date(),
+      },
+      {
+        id: 2,
+        customerId: 2,
+        restaurantId: 1,
+        status: "ACTIVE",
+        createdAt: new Date(),
+      }
+    ],
+    skipDuplicates: true,
+  });
 
+  // =========================
   // CART ITEMS
-  await prisma.$executeRawUnsafe(`
-    INSERT INTO "CartItem" ("cartId", "menuItemId", quantity)
-    VALUES
-      (1, 1, 2),
-      (1, 2, 1),
-      (2, 3, 3)
-    ON CONFLICT ("cartId", "menuItemId") DO NOTHING;
-  `);
+  // =========================
+  await prisma.cartItem.createMany({
+    data: [
+      { cartId: 1, menuItemId: 1, quantity: 2 },
+      { cartId: 1, menuItemId: 2, quantity: 1 },
+      { cartId: 2, menuItemId: 3, quantity: 3 }
+    ],
+    skipDuplicates: true,
+  });
 
-
-  await prisma.$executeRawUnsafe(`SELECT setval('"Cart_id_seq"', (SELECT MAX(id) FROM "Cart"))`);
-  await prisma.$executeRawUnsafe(`SELECT setval('"CartItem_id_seq"', (SELECT MAX(id) FROM "CartItem"))`);
-  await prisma.$executeRawUnsafe(`SELECT setval('"User_id_seq"', (SELECT MAX(id) FROM "User"))`);
-  await prisma.$executeRawUnsafe(`SELECT setval('"Customer_id_seq"', (SELECT MAX(id) FROM "Customer"))`);
-  await prisma.$executeRawUnsafe(`SELECT setval('"Restaurant_id_seq"', (SELECT MAX(id) FROM "Restaurant"))`);
-  await prisma.$executeRawUnsafe(`SELECT setval('"Menu_id_seq"', (SELECT MAX(id) FROM "Menu"))`);
-  await prisma.$executeRawUnsafe(`SELECT setval('"MenuItem_id_seq"', (SELECT MAX(id) FROM "MenuItem"))`);
-  console.log("✅ SQL seeding completed");
+  console.log("✅ Seeding completed successfully");
 }
 
 main()
@@ -87,5 +123,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-
-  
