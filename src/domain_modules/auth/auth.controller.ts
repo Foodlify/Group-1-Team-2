@@ -37,3 +37,13 @@ export const resetPassword = asyncHandler(async (req: any, res: any) => {
     await authServices.resetPassword(email, otp, newPassword);
     sendSucess(res, { message: "Password reset successfully", statusCode:StatusCodes.OK });
 });
+
+export const logout = asyncHandler(async (req: Request, res: Response) => {
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+    });
+    
+    sendSucess(res, { message: "User logged out successfully", statusCode:StatusCodes.OK });
+});
