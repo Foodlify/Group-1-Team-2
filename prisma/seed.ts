@@ -16,7 +16,7 @@ async function main() {
       {
         id: 1,
         name: "John Doe",
-        email: "john@test.com",
+        email: "abdullahsaidfawzy@gmail.com",
         password: passwordHash,
         role: "CUSTOMER",
         phone:"01154467412"
