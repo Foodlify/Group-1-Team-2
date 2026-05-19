@@ -1,12 +1,21 @@
 import { Router } from "express";
 import { validation } from "../../middlewares/validation.middleware";
-import { loginSchema, signupSchema } from "./auth.validation";
-import { signup,login } from "./auth.controller";
+import * as authSchemas from "./auth.validation";
+import * as authController from "./auth.controller";
 
 const router = Router();
 
-router.post("/signup", validation(signupSchema),signup);
-router.post("/login", validation(loginSchema),login);
+router.post("/signup", validation(authSchemas.signupSchema), authController.signup);
+router.post("/login", validation(authSchemas.loginSchema), authController.login);
+
+router.post("/forget-password", validation(authSchemas.forgetPasswordSchema), authController.forgetPassword);
+
+router.post("/reset-password", validation(authSchemas.resetPasswordSchema), authController.resetPassword);
+
+// logout
+router.post("/logout", authController.logout);
+
 
 export default router;
+
 

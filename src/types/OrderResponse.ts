@@ -10,5 +10,6 @@ export interface OrderResponse {
         quantity: number;
         itemTotal:  Prisma.Decimal;
     }[];
-    orderId?: number;
+    orderId: number;
+    paymentUrl?: string;
 }

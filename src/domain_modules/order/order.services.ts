@@ -9,11 +9,11 @@ import { OrderRequest } from "../../types/OrderRequest";
 import { OrderResponse } from "../../types/OrderResponse";
 import { logger } from "../../config/logger";
 import prisma from './../../lib/prisma';
+import * as orderRepo from "./order.repository";
+import * as orderExceptions from "../../shared/exceptions/Order.exception";
 
-export const createOrder = async (
-  request: OrderRequest
-): Promise<OrderResponse> => {
 
+export const createOrder = async (request: OrderRequest): Promise<OrderResponse> => {
   logger.info("Starting order creation process", {
     userId: request.userId,
     cartId: request.cartId,
@@ -44,4 +44,16 @@ export const createOrder = async (
   });
 
   return response;
+};
+
+export const getAllOrders = async (userId: number) => {
+    return await orderRepo.findAllOrdersByUserId(userId);
+};
+
+export const getOrderById = async (userId: number, orderId: number) => {
+    const order = await orderRepo.findOrderByIdAndUserId(orderId, userId);
+    if (!order) {
+        throw new orderExceptions.OrderNotFoundException();
+    }
+    return order;
 };

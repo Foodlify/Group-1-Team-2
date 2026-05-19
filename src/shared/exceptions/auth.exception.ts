@@ -24,3 +24,57 @@ export class UnauthorizedException  extends Error{
         this.statusCode = StatusCodes.UNAUTHORIZED
     }
 }
+
+export class UserNoLongerExistsException  extends Error{
+    statusCode: number;
+    constructor(){
+        super("User no longer exists");
+        this.statusCode = StatusCodes.BAD_REQUEST
+    }
+}
+
+
+export class UserNotFoundException extends Error {
+  statusCode: number;
+
+  constructor() {
+    super("User not found");
+    this.statusCode = StatusCodes.NOT_FOUND;
+  }
+}
+
+export class OTPEmailFailedException extends Error {
+  statusCode: number;
+
+  constructor() {
+    super("Failed to send OTP email");
+    this.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+  }
+}
+
+export class InvalidOTPRequestException extends Error {
+  statusCode: number;
+
+  constructor() {
+    super("No OTP request found for this user");
+    this.statusCode = StatusCodes.BAD_REQUEST;
+  }
+}
+
+export class OTPExpiredException extends Error {
+  statusCode: number;
+
+  constructor() {
+    super("OTP expired");
+    this.statusCode = StatusCodes.BAD_REQUEST;
+  }
+}
+
+export class InvalidOTPException extends Error {
+  statusCode: number;
+
+  constructor() {
+    super("Invalid OTP");
+    this.statusCode = StatusCodes.BAD_REQUEST;
+  }
+}
