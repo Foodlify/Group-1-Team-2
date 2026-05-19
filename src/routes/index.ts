@@ -6,6 +6,8 @@ import authRoutes from "../domain_modules/auth/auth.routes";
 
 const router = Router();
 
+
+
 router.use("/cart", cartRoutes);
 router.use("/order", orderRoutes);
 router.use("/customer", customerRoutes);
