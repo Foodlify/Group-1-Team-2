@@ -8,7 +8,7 @@ import { setAuthCookie } from "../../utils/authCookies";
 
 export const signup = asyncHandler(async (req: Request, res: Response) => {
     const result = await signupService(req.body);
-
+  
     setAuthCookie(res, result.token);
 
     sendSucess(res, { message: "User created successfully", data:{

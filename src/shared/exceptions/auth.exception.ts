@@ -16,3 +16,11 @@ export class InvalidCredentialsException extends Error {
     this.statusCode = StatusCodes.UNAUTHORIZED;
   }
 }
+
+export class UnauthorizedException  extends Error{
+    statusCode: number;
+    constructor(){
+        super("You are not authorized to access this resource, please login first");
+        this.statusCode = StatusCodes.UNAUTHORIZED
+    }
+}

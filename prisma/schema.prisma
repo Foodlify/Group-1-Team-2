@@ -17,6 +17,7 @@ model User {
   name     String
   email    String    @unique
   password String
+  passwordChangedAt DateTime?
   phone    String
   role     Role      @default(CUSTOMER)
   customer Customer?
