@@ -13,3 +13,13 @@ export const loginSchema = z.object({
     password: z.string({ required_error: "password is required" })
   .min(6, "password must be at least 6 characters")
 })
+
+export const forgetPasswordSchema = z.object({
+    email: z.string({required_error: "email is required"}).email("email is invalid"),
+});
+
+export const resetPasswordSchema = z.object({
+    email: z.string({required_error: "email is required"}).email("email is invalid"),
+    newPassword: z.string({required_error: "new password is required"}).min(6),
+    otp: z.string({required_error: "otp is required"}).length(6, "otp must be 6 digits"),
+})
