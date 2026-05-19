@@ -91,6 +91,4 @@ export const resetPassword = async (email: string, otp: string, newPassword: str
     resetPasswordOtp: null,
     resetPasswordOtpExpiry: null
   });
-
-  await authRepository.updatePasswordByEmail(email, hashedPassword);
 };

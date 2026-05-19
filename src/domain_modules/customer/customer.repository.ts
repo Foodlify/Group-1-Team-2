@@ -25,3 +25,10 @@ export const getCustomerProfileByUserId = async (userId: number) => {
   });
 };
     
+
+export const updateUser = async (id: number, data: any) => {
+  return prisma.user.update({
+    where: { id },
+    data,
+  });
+};
