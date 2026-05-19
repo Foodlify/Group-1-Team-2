@@ -24,3 +24,21 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
     data: response,
   });
 });
+
+
+export const viewOrders = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.userId as number;
+
+  const orders = await OrderServices.getAllOrders(userId);
+
+  sendSucess(res, { statusCode: StatusCodes.OK, data: orders });
+});
+
+export const viewOrder = asyncHandler(async (req: Request, res: Response) => {
+   const userId = req.userId as number;
+   const orderId = Number(req.params.orderId);
+
+   const order = await OrderServices.getOrderById(userId, orderId);
+
+   sendSucess(res, { statusCode: StatusCodes.OK, data: order });
+});

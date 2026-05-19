@@ -1,17 +1,23 @@
 import express, { Request, Response } from "express";
 import routes from "./routes/index";
+import webhookRoutes from "./domain_modules/webhook/webhook.route";
 import prisma from "./lib/prisma";
 import { asyncHandler } from "./utils/asyncHandler";
 import globalErrorHandler from "./middlewares/globalError.middleware";
 import swaggerUi from "swagger-ui-express"
 import YAML from "yamljs";
 import path from 'path';
+import cookieParser from "cookie-parser";
 
 
 
 const app = express();
 
+app.use(webhookRoutes);
+
 // ================= Middleware =================
+app.use(cookieParser());
+
 app.use(express.json());
 
 // ================= Health Check =================
@@ -23,6 +29,14 @@ app.get("/", asyncHandler (async (req: Request, res: Response) => {
       dbTime: result[0].now,
     });
 }));
+
+app.get('/success', (req:Request, res:Response) => {
+  res.send(' الدفع تم بنجاح! شكراً ليك.');
+});
+
+app.get('/cancel', (req:Request, res:Response) => {
+  res.send(' تم إلغاء العملية. حاول مرة أخرى.');
+});
 
 // ================= Swagger =================
 const spec = YAML.load(path.join(__dirname, 'swagger.yaml'));

@@ -1,10 +1,9 @@
 import { StatusCodes } from "http-status-codes";
 
-export class PaymentFailedException extends Error {
-  public statusCode = StatusCodes.BAD_REQUEST;
-
-  constructor() {
-    super("Payment failed");
-    this.name = "PaymentFailedException";
-  }
+export class OrderNotFoundException extends Error {
+    public statusCode = StatusCodes.NOT_FOUND
+    constructor() {
+        super("Order not found");
+        this.name = "OrderNotFoundException";
+    }
 }
