@@ -3,9 +3,10 @@ import {CustomerNotFound} from "../../shared/exceptions/Customer.exception"
 
 
 export const getCustomerByUserId = async (userId: number) => {  
-    const customer = await customerRepo.getCustomerByUserId(userId)
+    const customer = await customerRepo.getCustomerProfileByUserId(userId)
 
     if (!customer) throw new CustomerNotFound(userId.toString())
 
     return customer
 }
+
