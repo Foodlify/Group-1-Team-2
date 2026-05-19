@@ -7,6 +7,7 @@ import globalErrorHandler from "./middlewares/globalError.middleware";
 import swaggerUi from "swagger-ui-express"
 import YAML from "yamljs";
 import path from 'path';
+import cookieParser from "cookie-parser";
 
 
 
@@ -15,6 +16,8 @@ const app = express();
 app.use(webhookRoutes);
 
 // ================= Middleware =================
+app.use(cookieParser());
+
 app.use(express.json());
 
 // ================= Health Check =================
