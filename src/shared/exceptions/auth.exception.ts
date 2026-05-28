@@ -17,6 +17,23 @@ export class InvalidCredentialsException extends Error {
   }
 }
 
+export class UnauthorizedException  extends Error{
+    statusCode: number;
+    constructor(){
+        super("You are not authorized to access this resource, please login first");
+        this.statusCode = StatusCodes.UNAUTHORIZED
+    }
+}
+
+export class UserNoLongerExistsException  extends Error{
+    statusCode: number;
+    constructor(){
+        super("User no longer exists");
+        this.statusCode = StatusCodes.BAD_REQUEST
+    }
+}
+
+
 export class UserNotFoundException extends Error {
   statusCode: number;
 

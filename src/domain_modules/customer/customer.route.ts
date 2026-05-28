@@ -7,7 +7,9 @@ import { updateProfileSchema } from "./customer.validation";
 
 const router = Router();
 
-router.get("/me", authenticate, orderController.getProfile);
+router.get("/me", authenticate, orderController.getProfile); 
+
+router.put("/me", authenticate, validation(updateProfileSchema), orderController.updateProfile);
 
 
 export default router;
