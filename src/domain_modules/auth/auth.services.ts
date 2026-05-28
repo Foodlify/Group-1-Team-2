@@ -1,4 +1,3 @@
-import { EmailAlreadyExistsException, InvalidCredentialsException, UnauthorizedException, UserNoLongerExistsException } from '../../shared/exceptions/auth.exception';
 import { generateToken, verifyToken } from '../../utils/jwt';
 import prisma from '../../lib/prisma';
 import * as AuthExceptions from '../../shared/exceptions/auth.exception';
@@ -48,32 +47,6 @@ return { user: sanitizeUser(user), token };
 
 }
 
-export const protect = asyncHandler(async (req: any, res: any, next: any) => {
-   // 1) check if token exists, if exists get
-   const token = req.cookies.token;
-   if(!token) throw new UnauthorizedException();
-
-
-   //2) verify token (no change happens, expired or not)
-  const decoded =verifyToken(token);
-
-   //3) check if user still exists 
-   const currentUser = await userRepo.findUserById(decoded.userId);
-   if(!currentUser) throw new UserNoLongerExistsException();
-
-
-   //4) check if user changed password after token was issued
-   if(currentUser.passwordChangedAt){
-     const passwordChangedTimestamp = currentUser.passwordChangedAt.getTime()/1000;
-
-     if(decoded.iat < passwordChangedTimestamp){
-       throw new UnauthorizedException();
-     }
-   }
-
-   req.user =currentUser;
-   next();
-});
 
 
 export const forgetPassword = async (email: string) => {
