@@ -35,7 +35,6 @@ export const signupService = async (data: SignupInput) => {
    throw err;
   }
 };
-
 export const loginService = async (email: string, pass: string) => {
   const user = await userRepo.findUserByEmail(email);
   if (!user || !(await bcrypt.compare(pass, user.password))) {
@@ -44,7 +43,6 @@ export const loginService = async (email: string, pass: string) => {
 
 const token = generateToken({ userId: user.id });
 return { user: sanitizeUser(user), token };
-
 }
 
 
