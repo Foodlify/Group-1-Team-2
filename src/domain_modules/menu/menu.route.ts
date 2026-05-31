@@ -6,6 +6,6 @@ import { validation } from "../../middlewares/validation.middleware";
 
 
 router.post("/", validation(menuValidation.createMenu), menuController.createMenu);
-router.get("/", menuController.getMenus);
+router.get("/", validation(menuValidation.getMenus), menuController.getMenus);
 
 export default router;

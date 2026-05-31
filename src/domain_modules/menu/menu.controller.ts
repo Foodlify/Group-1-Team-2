@@ -16,6 +16,14 @@ export const createMenu = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getMenus = asyncHandler(async (req: Request, res: Response) => {
+    const restaurantId = Number(req.params.restaurantId);
+    const menus = await menuService.getMenus(restaurantId);
+
+    sendSucess(res, {
+      message: "Menus retrieved successfully",
+      statusCode: StatusCodes.OK,
+      data: menus,
+    });
 
 });
 

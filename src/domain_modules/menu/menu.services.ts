@@ -11,3 +11,11 @@ export const createMenu = async (restaurantId: number) => {
     
     return menu;
 }
+export const getMenus = async (restaurantId: number) => {
+    const restaurant = await findRestaurantById(restaurantId);
+    if (!restaurant) {
+        throw new RestaurantNotFoundException();
+    }
+    const menus = await menuRepository.getMenus(restaurantId);
+    return menus;
+}

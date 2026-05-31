@@ -18,3 +18,12 @@ export const createMenu = async (restaurantId: number,) => {
     });
 };
 
+export const getMenus = async (restaurantId: number) => {
+    return await prisma.menu.findMany({
+        where: { restaurantId },
+        include: {
+            menuItems: true,
+        },
+    });
+};
+
