@@ -1,8 +1,11 @@
 import { Router } from "express";
 import * as restaurantController from "./restaurant.controller";
 import { cache } from "../../config/cache";
+import menuRouter from "../menu/menu.route";
 
 const router = Router();
+
+router.use('/:restaurantId/menus', menuRouter);
 
 
 router.get("/:id", restaurantController.getRestaurant);
