@@ -1,6 +1,9 @@
 import prisma from "../../lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
 import { CartStatus } from "@prisma/client";
+import { DBClient } from "../../types/PrismaClientOrTx";
+
+
 export const findMenuItemById = async (id: number) => {
   return prisma.menuItem.findUnique({
     where: { id },
@@ -10,8 +13,11 @@ export const findMenuItemById = async (id: number) => {
   });
 };
 
-export const findActiveCartByCustomerId = async (customerId: number) => {
-  return prisma.cart.findFirst({
+export const findActiveCartByCustomerId = async (
+  customerId: number,
+  client:any = prisma
+) => {
+  return client.cart.findFirst({
     where: { customerId: customerId, status: CartStatus.ACTIVE},
   });
 };
@@ -137,6 +143,14 @@ export const getMenuItemById  = async(id:number ,tx:any) => {
 }
 
 
-export const lockCart = async (cartId: number,tx: any) => {
-  return await tx.cart.update({where:{id:cartId},data:{status:false}});
+export const lockCart = async (cartId: number,  client:any = prisma) => {
+  return await client.cart.update({where:{id:cartId},data:{status:CartStatus.LOCKED}});
 };
+
+export const getCartItems = async (cartId: number, client:DBClient = prisma) => {
+  return await client.cartItem.findMany({where:{cartId}});
+};
+
+export const getMenuItemsByIds = async (menuItemsIds: number[], client:DBClient = prisma) => {
+  return await client.menuItem.findMany({where:{id:{in:menuItemsIds}}});
+}

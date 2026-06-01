@@ -1,6 +1,6 @@
-import { MenuItem, Prisma,Order } from "@prisma/client"
+import { MenuItem,Order,OrderItem} from "@prisma/client"
 import prisma from "../../lib/prisma"
-
+import {DBClient} from "../../types/PrismaClientOrTx"
 
 export const getMenuItemsByIds = async (
   ids: number[],
@@ -16,12 +16,31 @@ return tx.address.create({data:newAddress})
 }
 
 
-export const createOrder = async (data: any, tx: any) => {
-    return await tx.order.create({ data })
-}
+export const createOrder = async (
+  data: any,
+  client:DBClient  = prisma
+) => {
+  return client.order.create({
+    data: {
+      customer: {
+        connect: { id: data.customerId },
+      },
+      restaurant: {
+        connect: { id: data.restaurantId },
+      },
+      address: {
+        connect: { id: data.addressId },
+      },
+      phone: data.phone,
+      notes: data.notes,
+      paymentMethod: data.paymentMethod,
+      totalPrice: data.totalPrice,
+    },
+  });
+};
 
-export const createOrderItems = async (data: any, tx: any) => {
-    return await tx.orderItem.createMany({ data })
+export const createOrderItems = async (items: any[], orderId: number, client:DBClient = prisma) => {
+    return await client.orderItem.createMany({ data:items.map(item=>({...item,orderId})) })
 }
 
 export const updateMenuItemStock = async (items:{id:number,quantity: number}[], tx: any) => {
@@ -38,7 +57,6 @@ return Promise.all(
 export const getOrderById = async (id: number):Promise<Order|null> => {
     return await prisma.order.findUnique({ where: { id } })
 }
-
 
 export const findAllOrdersByUserId = async (userId: number) => {
     return await prisma.order.findMany({

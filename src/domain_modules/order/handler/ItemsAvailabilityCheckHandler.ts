@@ -4,13 +4,17 @@ import { SomeOfItemsNotAvailableException } from "../../../shared/exceptions/Men
 import { OrderRequest } from "../../../types/OrderRequest";
 import { OrderResponse } from "../../../types/OrderResponse";
 import { OrderHandler } from "./orderHandler";
+import * as cartRepo from "../../cart/cart.repository";
 
 export class ItemsAvailabilityCheckHandler  extends OrderHandler{
     async handle(request:OrderRequest , response:OrderResponse):Promise<OrderResponse>{ 
       const client = request.tx ?? prisma
-      const cartItems = await client.cartItem.findMany({where:{cartId:request.cartId}});
+
+      const cartItems = await cartRepo.getCartItems(request.cartId,client);
+
        const menuItemsId= cartItems.map(item=>item.menuItemId);
-       const menuItems = await client.menuItem.findMany({where:{id:{in:menuItemsId}}});
+
+       const menuItems = await cartRepo.getMenuItemsByIds(menuItemsId,client);
     
        const menuItemMap = new Map(menuItems.map(item=>[item.id,item]));
 
