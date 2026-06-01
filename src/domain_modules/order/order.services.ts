@@ -10,7 +10,7 @@ import { OrderResponse } from "../../types/OrderResponse";
 import { logger } from "../../config/logger";
 import prisma from './../../lib/prisma';
 import * as orderRepo from "./order.repository";
-import * as orderExceptions from "../../shared/exceptions/Order.exception";
+import { OrderNotFoundException } from "../../shared/exceptions/order.exception";
 
 
 export const createOrder = async (request: OrderRequest): Promise<OrderResponse> => {
@@ -53,7 +53,7 @@ export const getAllOrders = async (userId: number) => {
 export const getOrderById = async (userId: number, orderId: number) => {
     const order = await orderRepo.findOrderByIdAndUserId(orderId, userId);
     if (!order) {
-        throw new orderExceptions.OrderNotFoundException();
+        throw new OrderNotFoundException();
     }
     return order;
 };

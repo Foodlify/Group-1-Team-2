@@ -1,5 +1,4 @@
 import * as menuRepository from "./menu.repository";
-import { RestaurantNotFoundException } from "../../shared/exceptions/restaurant.exception";
 import { MenuNotFoundException } from "../../shared/exceptions/menuexception";
 import { findRestaurantById } from "../restaurant/restaurant.service"
 export const createMenu = async (restaurantId: number) => {

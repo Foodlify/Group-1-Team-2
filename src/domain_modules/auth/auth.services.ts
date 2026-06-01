@@ -1,3 +1,4 @@
+import { EmailAlreadyExistsException, InvalidCredentialsException, UnauthorizedException, UserNoLongerExistsException } from '../../shared/exceptions/auth.exception';
 import { generateToken, verifyToken } from '../../utils/jwt';
 import prisma from '../../lib/prisma';
 import * as AuthExceptions from '../../shared/exceptions/auth.exception';
@@ -43,7 +44,9 @@ export const loginService = async (email: string, pass: string) => {
 
 const token = generateToken({ userId: user.id });
 return { user: sanitizeUser(user), token };
-};
+
+}
+
 
 
 export const forgetPassword = async (email: string) => {
@@ -68,7 +71,9 @@ export const forgetPassword = async (email: string) => {
     throw new AuthExceptions.OTPEmailFailedException();
   }
 
+
 };
+
 export const resetPassword = async (email: string, otp: string, newPassword: string) => {
   const user = await authRepository.findUserByEmail(email);
   if (!user) {
@@ -91,4 +96,5 @@ export const resetPassword = async (email: string, otp: string, newPassword: str
     resetPasswordOtp: null,
     resetPasswordOtpExpiry: null
   });
+
 };

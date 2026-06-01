@@ -1,41 +1,45 @@
 import prisma from "../../../lib/prisma";
-import { CartStatus, PaymentMethod } from "@prisma/client";
 import { OrderRequest } from "../../../types/OrderRequest";
 import { OrderResponse } from "../../../types/OrderResponse";
 import { OrderHandler } from "./orderHandler";
 import { logger } from "../../../config/logger";
+import * as orderRepo from "../order.repository";
+import * as transactionRepo from "../../transaction/transaction.repostiory";
 
 export class FinalizeOrderHandler extends OrderHandler {
   async handle(
     request: OrderRequest,
     response: OrderResponse
   ): Promise<OrderResponse> {
-    const client = request.tx ?? prisma 
-    const order = await client.order.create({
-      data: {
-         customer:   { connect: { id: response.customerId! } },
-         restaurant: { connect: { id: response.restaurantId! } },
-         address:    { connect: { id: request.addressId! } },
-        phone: request.phone,
-        notes: request.notes,
-        paymentMethod: request.paymentMethod,
-        totalPrice: response.totalPrice!,
-      },
-    });
 
-    await client.orderItem.createMany({
-      data: response.orderItems.map((item) => ({ ...item, orderId: order.id })),
-    });
 
-    await client.transaction.create({
-      data: {
+    const orderData = {
+      customer : response.customerId,
+      restaurant: response.restaurantId,
+      address: request.addressId,
+      phone: request.phone,
+      notes: request.notes,
+      paymentMethod: request.paymentMethod,
+      totalPrice: response.totalPrice,
+    }
+
+    const order = await orderRepo.createOrder(orderData, request.tx);
+
+    await orderRepo.createOrderItems(
+    response.orderItems,
+    order.id,
+    request.tx
+  );
+
+  const transactionData = {
         orderId: order.id,
         customerId: response.customerId,
         paymentMethod: request.paymentMethod,
         shippingFee: 10,
         totalAmount: response.totalPrice,
-      },
-    });
+      };
+
+    await transactionRepo.createTransaction(transactionData, request.tx);
 
 
     response.orderId = order.id;
