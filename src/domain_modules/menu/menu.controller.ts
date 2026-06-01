@@ -27,6 +27,17 @@ export const getMenus = asyncHandler(async (req: Request, res: Response) => {
 
 });
 
+export const getMenu = asyncHandler(async (req: Request, res: Response) => {
+    const restaurantId = Number(req.params.restaurantId);
+    const menuId = Number(req.params.menuId);
+    const menu = await menuService.getMenu(restaurantId, menuId);
+
+    sendSucess(res, {
+      message: "Menu retrieved successfully",
+      statusCode: StatusCodes.OK,
+      data: menu,
+    });
+});
 
 export const deleteMenu = asyncHandler(async (req: Request, res: Response) => {
     const restaurantId = Number(req.params.restaurantId);

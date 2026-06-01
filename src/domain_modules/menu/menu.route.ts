@@ -8,5 +8,7 @@ import { validation } from "../../middlewares/validation.middleware";
 router.post("/", validation(menuValidation.createMenu), menuController.createMenu);
 router.get("/", validation(menuValidation.getMenus), menuController.getMenus);
 
+router.get("/:menuId", validation(menuValidation.getMenu), menuController.getMenu);
+
 router.delete("/:menuId", validation(menuValidation.deleteMenu), menuController.deleteMenu);
 export default router;
