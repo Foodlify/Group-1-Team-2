@@ -19,6 +19,15 @@ export const getMenus = async (restaurantId: number) => {
     });
 };
 
+export const getMenu = async (restaurantId: number, menuId: number) => {
+    return await prisma.menu.findFirst({
+        where: { id: menuId, restaurantId, isDeleted: false },
+        include: {
+            menuItems: true,
+        },
+    });
+};
+
 export const deleteMenu = async (restaurantId: number, menuId: number) => {
     // delete the menu and its items
     await prisma.menu.update({
