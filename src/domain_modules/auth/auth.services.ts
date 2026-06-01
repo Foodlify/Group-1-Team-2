@@ -43,9 +43,7 @@ export const loginService = async (email: string, pass: string) => {
 
 const token = generateToken({ userId: user.id });
 return { user: sanitizeUser(user), token };
-}
-
-
+};
 
 export const forgetPassword = async (email: string) => {
   const user = await authRepository.findUserByEmail(email);

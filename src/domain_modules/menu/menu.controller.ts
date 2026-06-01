@@ -28,3 +28,12 @@ export const getMenus = asyncHandler(async (req: Request, res: Response) => {
 });
 
 
+export const deleteMenu = asyncHandler(async (req: Request, res: Response) => {
+    const restaurantId = Number(req.params.restaurantId);
+    const menuId = Number(req.params.menuId);
+    await menuService.deleteMenu(restaurantId, menuId);
+    sendSucess(res, {
+      message: "Menu deleted successfully",
+      statusCode: StatusCodes.OK,
+    });
+});
