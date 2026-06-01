@@ -1,8 +1,9 @@
 
 import prisma from "../../lib/prisma"
+import { DBClient } from "../../types/PrismaClientOrTx";
 
-export const getCustomerProfileByUserId = async (userId: number) => {
-  return await prisma.customer.findUnique({
+export const getCustomerProfileByUserId = async (userId: number , client:DBClient = prisma) => {
+  return await client.customer.findUnique({
     where: { userId },
     include: {
       user: {
@@ -25,3 +26,10 @@ export const getCustomerProfileByUserId = async (userId: number) => {
   });
 };
     
+
+export const updateUser = async (id: number, data: any) => {
+  return prisma.user.update({
+    where: { id },
+    data,
+  });
+};

@@ -1,10 +1,5 @@
 import prisma from '../../lib/prisma';
- import { User } from "@prisma/client";
-export const updatePasswordByEmail = async (email: string, hashedPassword: string) => {
-    await prisma.user.updateMany({
-        where: { email },
-        data: { password: hashedPassword }
-    })};
+import { User } from "@prisma/client";
 
 export const findUserByEmail = async (email: string) => {
     return await prisma.user.findUnique({

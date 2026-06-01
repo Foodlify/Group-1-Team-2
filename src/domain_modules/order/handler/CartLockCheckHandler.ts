@@ -4,13 +4,17 @@ import { OrderResponse } from "../../../types/OrderResponse";
 import prisma from "../../../lib/prisma";
 import { CartStatus } from "@prisma/client";
 import { CartAlreadyCompletedException, CartLockedException, CartNotFoundExeption } from "../../../shared/exceptions/Cart.exception";
+import * as cartRepo from "../../cart/cart.repository";
 
 
 export class CartCheckHandler extends OrderHandler {
 
     async handle(request:OrderRequest , response:OrderResponse):Promise<OrderResponse>{
-        const client = request.tx ?? prisma 
-        const cart = await client.cart.findUnique({where: {id:request.cartId}});
+        const client = request.tx ?? prisma ;
+        const cart = await cartRepo.findActiveCartByCustomerId(
+            request.cartId,
+            client
+        );
 
         if(!cart){
             throw new CartNotFoundExeption();
@@ -25,11 +29,8 @@ export class CartCheckHandler extends OrderHandler {
             throw new CartAlreadyCompletedException();
         }
 
-        await client.cart.update({
-            where:{id:cart.id},
-            data:{status:CartStatus.LOCKED}
-        });
-         
+        await cartRepo.lockCart(cart.id,client);
+        
         response.restaurantId = cart.restaurantId;
         return this.handleNext(request,response);
     }
