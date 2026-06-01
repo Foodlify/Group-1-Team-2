@@ -60,7 +60,6 @@ async function main() {
     where: { id: 1 },
     update: {},
     create: {
-      id: 1,
       restaurantId: 1
     }
   });
