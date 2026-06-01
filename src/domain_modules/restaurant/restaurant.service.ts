@@ -30,3 +30,10 @@ export const deleteRestaurant = async (id: number) => {
     await restaurantRepo.deleteRestaurant(id);
     cache.del(CacheKeys.restaurant(id));
 }
+
+export const findRestaurantById = async (id: number) => {
+    const restaurant = await restaurantRepo.getRestaurantById(id);
+    if (!restaurant) {
+        throw new RestaurantNotFoundException();
+    }
+}
