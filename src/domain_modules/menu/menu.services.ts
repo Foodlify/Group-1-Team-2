@@ -16,6 +16,7 @@ export const getMenus = async (restaurantId: number) => {
     const menus = await menuRepository.getMenus(restaurantId);
     return menus;
 }
+
 export const deleteMenu = async (restaurantId: number, menuId: number) => {
     
     await findRestaurantById(restaurantId);
