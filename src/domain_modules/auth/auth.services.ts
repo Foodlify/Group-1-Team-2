@@ -41,7 +41,6 @@ export const loginService = async (email: string, pass: string) => {
   if (!user || !(await bcrypt.compare(pass, user.password))) {
   throw new AuthExceptions.InvalidCredentialsException();
 }
-
 const token = generateToken({ userId: user.id });
 return { user: sanitizeUser(user), token };
 

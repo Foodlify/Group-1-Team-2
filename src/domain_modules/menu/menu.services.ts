@@ -6,7 +6,7 @@ export const createMenu = async (restaurantId: number) => {
     await findRestaurantById(restaurantId);
 
     const menu = await menuRepository.createMenu(restaurantId);
-    
+
     return menu;
 }
 export const getMenus = async (restaurantId: number) => {
@@ -14,6 +14,11 @@ export const getMenus = async (restaurantId: number) => {
     await findRestaurantById(restaurantId);
 
     const menus = await menuRepository.getMenus(restaurantId);
+    
+        if (!menus) {
+        throw new MenuNotFoundException();
+        }
+
     return menus;
 }
 
