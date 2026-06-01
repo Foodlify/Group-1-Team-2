@@ -16,26 +16,28 @@ import crypto from "crypto";
 import { sendEmail } from '../../utils/sendEmail';
 import { generateResetPasswordTemplate } from '../../utils/htmlTemplets';
 
-
 type SignupInput = z.infer<typeof signupSchema>;
 
 export const signupService = async (data: SignupInput) => {
-  const hashedPassword = await bcrypt.hash(data.password, 10);
-  try {
-    const user = await userRepo.createUser({...data, hashedPassword});
-    logger.info(`New user registered: ${user.id}`);
-    const token = generateToken({ userId: user.id });
-    return { user: sanitizeUser(user), token };
 
-  } catch (err: any) {
-    if (err.code === "P2002") {
-      logger.warn(`Signup attempt with existing email: ${data.email}`);
-      throw new AuthExceptions.EmailAlreadyExistsException();
-    }
-    logger.error(`Signup failed: ${err.message}`);
-   throw err;
+  const existingUser = await userRepo.findUserByEmail(data.email);
+  if (existingUser) {
+    logger.warn(`Signup attempt with existing email: ${data.email}`);
+    throw new AuthExceptions.EmailAlreadyExistsException();
   }
+
+  const hashedPassword = await bcrypt.hash(data.password, 10);
+
+  const user = await userRepo.createUser({ ...data, hashedPassword });
+
+  logger.info(`New user registered: ${user.id}`);
+
+  const token = generateToken({ userId: user.id });
+
+  return { user: sanitizeUser(user), token };
 };
+
+
 export const loginService = async (email: string, pass: string) => {
   const user = await userRepo.findUserByEmail(email);
   if (!user || !(await bcrypt.compare(pass, user.password))) {
