@@ -12,9 +12,7 @@ router.post("/forget-password", validation(authSchemas.forgetPasswordSchema), au
 
 router.post("/reset-password", validation(authSchemas.resetPasswordSchema), authController.resetPassword);
 
-// logout
 router.post("/logout", authController.logout);
-
 
 export default router;
 

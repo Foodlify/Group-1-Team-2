@@ -44,3 +44,11 @@ export const deleteMenu = async (restaurantId: number, menuId: number) => {
     }
     await menuRepository.deleteMenu(restaurantId, menuId);
 }
+
+export const findMenuById = async (menuId: number) => {
+    
+    const menu = await menuRepository.findMenuById(menuId);
+    if (!menu) {
+        throw new MenuNotFoundException();
+    }
+}

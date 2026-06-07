@@ -62,6 +62,8 @@ model MenuItem {
   price    Decimal @db.Decimal(10, 2)
   stock    Int     @default(0)
 
+  isDeleted Boolean  @default(false)
+
   menu       Menu        @relation(fields: [menuId], references: [id])
   cartItems  CartItem[]
   orderItems OrderItem[]
