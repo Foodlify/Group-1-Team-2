@@ -30,10 +30,17 @@ export const getMenu = async (restaurantId: number, menuId: number) => {
 
 export const deleteMenu = async (restaurantId: number, menuId: number) => {
     // delete the menu and its items
-    await prisma.menu.update({
-        where: { id: menuId, restaurantId },
-        data: { isDeleted: true },
+    await prisma.$transaction(async (prisma) => {
+        await prisma.menuItem.updateMany({
+            where: {  menuId, isDeleted: false },
+            data: { isDeleted: true },
+        });
+        await prisma.menu.update({
+            where: { id: menuId, restaurantId },
+            data: { isDeleted: true },
+        });
     });
+ 
 };
 
 export const findMenuById = async (menuId: number) => {

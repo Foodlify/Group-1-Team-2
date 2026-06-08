@@ -38,10 +38,11 @@ export const deleteMenu = async (restaurantId: number, menuId: number) => {
     
     await findRestaurantById(restaurantId);
 
-    const menu = await menuRepository.getMenus(restaurantId);
-    if (!menu.find((m) => m.id === menuId)) {
+    const menu = await menuRepository.getMenu(restaurantId, menuId);
+    if (!menu) {
         throw new MenuNotFoundException();
     }
+  
     await menuRepository.deleteMenu(restaurantId, menuId);
 }
 
