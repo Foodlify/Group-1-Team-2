@@ -1,17 +1,18 @@
+import { Role } from '@prisma/client';
 import prisma from '../../lib/prisma';
 import { signupSchema } from '../auth/auth.validation';
 import { z } from 'zod';
-type SignupInput = z.infer<typeof signupSchema>;
+import { CreateUserInput } from '../../types/user.types';
 
-export const createUser = async(data:SignupInput &{hashedPassword:string})=>{
+export const createUser = async(data:CreateUserInput)=>{
     return prisma.user.create({
         data:{
             name: data.name,
             email: data.email,
             password: data.hashedPassword,
-            role: "CUSTOMER",
+            role: Role.CUSTOMER,
             phone: data.phone,
-            customer: { create: {} }
+            customer: { create: {} } 
         }
     });
 }

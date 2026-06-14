@@ -10,6 +10,7 @@ datasource db {
 enum Role {
   CUSTOMER
   ADMIN
+  OWNER
 }
 
 model User {
@@ -21,9 +22,11 @@ model User {
   phone    String
   role     Role      @default(CUSTOMER)
   customer Customer?
+   owner    Owner? 
 
   resetPasswordOtp String?
   resetPasswordOtpExpiry DateTime?
+  createdAt DateTime @default(now())
 }
 
 model Customer {
@@ -34,15 +37,28 @@ model Customer {
   addresses    Address[]
   order        Order[]
   transactions Transaction[]
+    createdAt DateTime @default(now())
 }
+
+model Owner {
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  user  User @relation(fields:[userId] , references:[id])
+  restaurants Restaurant[]
+  createdAt DateTime @default(now())
+}
+
 
 model Restaurant {
   id   Int    @id @default(autoincrement())
   name String
+  ownerId Int
 
   menus  Menu[]
   carts  Cart[]
   orders Order[]
+
+  owner Owner @relation(fields:[ownerId], references:[id])
 }
 
 model Menu {

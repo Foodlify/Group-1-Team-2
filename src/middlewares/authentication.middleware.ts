@@ -1,37 +1,26 @@
+import * as userRepo from "../domain_modules/user/user.repository";
 import { Request, Response, NextFunction } from "express";
+import { ForbiddenException, UnauthorizedException, UserNoLongerExistsException } from "../shared/exceptions/auth.exception";
+import { verifyToken } from "../utils/jwt";
+import {Role} from "@prisma/client"
+import { asyncHandler } from "../utils/asyncHandler";
 
-declare global {
-  namespace Express {
-    interface Request {
-      userId?: number;
-    }
-  }
-}
 
-export const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  req.userId = 123;
+export const authenticate =asyncHandler( async(req: Request, res: Response, next: NextFunction) => {
   
+  const token = req.cookies.token;
+  if(!token) throw new UnauthorizedException();
+
+  const decoded = verifyToken(token);
+  const user = await userRepo.findUserById(decoded.userId);
+
+  if(!user) throw new UserNoLongerExistsException();
+
+  req.userId = user.id;
+  req.userRole = user.role;
+
   next();
-};
 
 
-// export const protect = asyncHandler(async (req: any, res: any, next: any) => {
-//    // 1) check if token exists, if exists get
-//    const token = req.cookies.token;
-//    if(!token) throw new UnauthorizedException();
+});
 
-//    //2) verify token (no change happens, expired or not)
-//   const decoded =verifyToken(token);
-//    //3) check if user still exists 
-//    const currentUser = await userRepo.findUserById(decoded.userId);
-//    if(!currentUser) throw new UserNoLongerExistsException();
-//    //4) check if user changed password after token was issued
-//    if(currentUser.passwordChangedAt){
-//      const passwordChangedTimestamp = currentUser.passwordChangedAt.getTime()/1000;
-//      if(decoded.iat < passwordChangedTimestamp){
-//        throw new UnauthorizedException();
-//      }
-//    }
-//    req.user =currentUser;
-//    next();
-// });

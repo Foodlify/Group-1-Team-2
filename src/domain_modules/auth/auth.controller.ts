@@ -7,6 +7,7 @@ import { setAuthCookie } from "../../utils/authCookies";
 
 
 export const signup = asyncHandler(async (req: Request, res: Response) => {
+    
     const result = await authServices.signupService(req.body);
   
     setAuthCookie(res, result.token);

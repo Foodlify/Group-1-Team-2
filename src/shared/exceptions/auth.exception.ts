@@ -78,3 +78,11 @@ export class InvalidOTPException extends Error {
     this.statusCode = StatusCodes.BAD_REQUEST;
   }
 }
+
+export class ForbiddenException  extends Error{
+    statusCode: number;
+    constructor(){
+        super("You are not authorized to access this resource");
+        this.statusCode = StatusCodes.FORBIDDEN
+    }
+}
