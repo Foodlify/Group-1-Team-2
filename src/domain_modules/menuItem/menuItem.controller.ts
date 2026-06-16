@@ -11,8 +11,10 @@ export const createMenuItem = asyncHandler(async (req: Request, res: Response) =
 
   const  menuId  = Number(req.params.menuId);
   const { itemName, price, stock} = req.body
+  const resturantId = Number(req.params.resturantId)
+  const userId = Number(req.userId)
 
-  const menuItem = await menuItemService.createMenuItem(menuId, itemName, price, stock);
+  const menuItem = await menuItemService.createMenuItem(resturantId, menuId, itemName, price, stock, userId );
 
   sendSucess(res, {
     message: "Menu item created successfully",
@@ -27,7 +29,10 @@ export const updateMenuItem = asyncHandler(async (req: Request, res: Response) =
   const menuItemId = Number(req.params.menuItemId);
   const data: UpdateMenuItem = req.body;
 
-  const menuItem = await menuItemService.updateMenuItem(menuId, menuItemId, data);
+  const resturantId = Number(req.params.resturantId)
+  const userId = Number(req.userId)
+
+  const menuItem = await menuItemService.updateMenuItem(resturantId, userId,menuId, menuItemId, data);
 
   sendSucess(res, {
       message: "Menu item updated successfully",
@@ -65,8 +70,11 @@ export const deleteMenuItem = asyncHandler(async (req: Request, res: Response) =
   
   const menuId = Number(req.params.menuId);
   const menuItemId = Number(req.params.menuItemId);
+  const resturantId = Number(req.params.resturantId)
+  const userId = Number(req.userId)
+
   
-  await menuItemService.deleteMenuItem(menuId, menuItemId);
+  await menuItemService.deleteMenuItem(resturantId, userId ,menuId, menuItemId);
 
   sendSucess(res, {
     message: "Menu item deleted successfully",

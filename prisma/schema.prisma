@@ -22,6 +22,9 @@ model User {
   role     Role      @default(CUSTOMER)
   customer Customer?
 
+  restaurantId Int? 
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id])
+
   resetPasswordOtp String?
   resetPasswordOtpExpiry DateTime?
 }
@@ -36,9 +39,12 @@ model Customer {
   transactions Transaction[]
 }
 
+
 model Restaurant {
-  id   Int    @id @default(autoincrement())
+  id Int @id @default(autoincrement())
   name String
+
+  admins User[] 
 
   menus  Menu[]
   carts  Cart[]

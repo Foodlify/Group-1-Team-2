@@ -78,3 +78,12 @@ export class InvalidOTPException extends Error {
     this.statusCode = StatusCodes.BAD_REQUEST;
   }
 }
+
+export class NoTAUTHORIZED extends Error {
+    statusCode: number;
+
+    constructor() {
+        super("You are not authorized to perform this action");
+        this.statusCode = StatusCodes.FORBIDDEN;
+    }
+}

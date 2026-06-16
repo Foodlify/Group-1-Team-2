@@ -20,6 +20,7 @@ type SignupInput = z.infer<typeof signupSchema>;
 
 export const signupService = async (data: SignupInput) => {
 
+  
   const existingUser = await userRepo.findUserByEmail(data.email);
   if (existingUser) {
     logger.warn(`Signup attempt with existing email: ${data.email}`);

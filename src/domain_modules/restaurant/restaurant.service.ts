@@ -1,7 +1,7 @@
 // restaurant.service.ts
 import { cache, CacheKeys } from "../../config/cache";
 import { logger } from "../../config/logger";
-import { RestaurantNotFoundException } from "../../shared/exceptions/restaurant.exception";
+import { NOTALLOWEDTOCREATEMORETHANONE, RestaurantNotFoundException } from "../../shared/exceptions/restaurant.exception";
 import * as restaurantRepo from "./restaurant.repository";
 
 
@@ -18,6 +18,17 @@ export const getRestaurant = async (id: number) => {
     cache.set(CacheKeys.restaurant(id), restaurant);
     return restaurant;
 }
+
+export const createRestaurant = async ( name: string, userId: number) => {
+
+
+    const userRestaurants = await restaurantRepo.getRestaurantsByUserId(userId);
+    if (userRestaurants) {
+        throw new NOTALLOWEDTOCREATEMORETHANONE();
+    }
+    const restaurant = await restaurantRepo.createRestaurant( name, userId );
+    return restaurant;
+};
 
 export const updateRestaurant = async (id: number, data: any) => {
     const updated =  await restaurantRepo.updateRestaurant(id, data);
@@ -36,4 +47,7 @@ export const findRestaurantById = async (id: number) => {
     if (!restaurant) {
         throw new RestaurantNotFoundException();
     }
+
+    return restaurant;
 }
+

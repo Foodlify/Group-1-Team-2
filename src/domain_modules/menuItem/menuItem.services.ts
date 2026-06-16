@@ -1,12 +1,15 @@
-import { asyncHandler } from "../../utils/asyncHandler";
 import * as menuItemRepository from "./menuItem.repository"
 import { findMenuById } from "../menu/menu.services";
+import { NoTAUTHORIZED } from "../../shared/exceptions/auth.exception";
+
+import {findRestaurantById } from "../restaurant/restaurant.service";
 
 import { MenuItemNotFoundException } from "../../shared/exceptions/MenuItem.exception";
 import { UpdateMenuItem } from "../../types/menuItem";
 
-export const createMenuItem = async(menuId: number, itemName: string , price: number, stock: number) => {
+export const createMenuItem = async(resturantId: number, menuId: number, itemName: string , price: number, stock: number, userId: number) => {
 
+    await checkIfUserAdminInRestaurant(resturantId, userId)
     await findMenuById(menuId);
    
     const menuItem = await menuItemRepository.createMenuItem(menuId, itemName, price, stock);
@@ -30,7 +33,7 @@ export const getMenuItemsByMenuId = async (menuId: number) => {
 
     const menuItems = await menuItemRepository.getMenuItemsByMenuId(menuId);
 
-    if (!menuItems) {
+    if(menuItems.length===0){
         throw new MenuItemNotFoundException(menuId);
     }
 
@@ -38,7 +41,10 @@ export const getMenuItemsByMenuId = async (menuId: number) => {
 
 };
 
-export const updateMenuItem = async (menuId: number, menuItemId: number , data: UpdateMenuItem) => {
+export const updateMenuItem = async (resturantId: number, userId: number, menuId: number, menuItemId: number , data: UpdateMenuItem) => {
+
+    await checkIfUserAdminInRestaurant(resturantId, userId)
+
     await findMenuById(menuId);
 
     await getMenuItemById(menuItemId, menuId);
@@ -49,7 +55,10 @@ export const updateMenuItem = async (menuId: number, menuItemId: number , data: 
     
 };
 
-export const deleteMenuItem = async (menuId: number, menuItemId: number) => {
+export const deleteMenuItem = async (resturantId: number, userId: number, menuId: number, menuItemId: number) => {
+
+    await checkIfUserAdminInRestaurant(resturantId, userId);
+
     await findMenuById(menuId);
     
     await getMenuItemById(menuItemId, menuId);
@@ -58,6 +67,17 @@ export const deleteMenuItem = async (menuId: number, menuItemId: number) => {
 
 }
 
+export const checkIfUserAdminInRestaurant = async(restaurantId: number, userId: number)=>{
 
+    const restaurant = await findRestaurantById(restaurantId);
+
+    const admins = restaurant.admins; 
+    
+    const isAdmin = admins.some(admin => admin.id === userId);
+
+    if (!isAdmin) {
+        throw new NoTAUTHORIZED();
+    }
+}
 
 
