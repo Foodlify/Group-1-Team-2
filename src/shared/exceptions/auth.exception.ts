@@ -87,3 +87,14 @@ export class NoTAUTHORIZED extends Error {
         this.statusCode = StatusCodes.FORBIDDEN;
     }
 }
+
+
+export class NOTAUTHENTICATED extends Error {
+      statusCode: number;
+
+    constructor() {
+        super("You are not authenticated to perform this action");
+        this.statusCode = StatusCodes.FORBIDDEN;
+    }
+
+}

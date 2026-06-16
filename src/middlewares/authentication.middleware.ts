@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { verifyToken } from "../utils/jwt";
 import prisma from "../lib/prisma";
 import { JwtCustomPayload } from "../utils/jwt";
-import { NoTAUTHORIZED } from "../shared/exceptions/auth.exception";
+import { NoTAUTHORIZED, NOTAUTHENTICATED } from "../shared/exceptions/auth.exception";
 
 
 
@@ -12,7 +12,7 @@ export const isAuthenticated = asyncHandler(async (req: Request, res: Response, 
   // get token from cookies
   const token = req.cookies.token;
   if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
+    throw new NOTAUTHENTICATED(); 
   }
   // verify token and extract userId
     const decoded: JwtCustomPayload = verifyToken(token);
@@ -20,15 +20,14 @@ export const isAuthenticated = asyncHandler(async (req: Request, res: Response, 
   const user = await prisma.user.findUnique({
     where: { id: decoded.userId },
   });
-  console.log("Authenticated user:", user); // Debugging log
   if (!user) {
-    throw new NoTAUTHORIZED(); 
+    throw new NOTAUTHENTICATED(); 
   }
 
   if (user.passwordChangedAt) {
   const changedAt = Math.floor(user.passwordChangedAt.getTime() / 1000);
   if (decoded.iat < changedAt) {
-    throw new NoTAUTHORIZED();
+    throw new NOTAUTHENTICATED();
   }
 }
   // attach user to req.user

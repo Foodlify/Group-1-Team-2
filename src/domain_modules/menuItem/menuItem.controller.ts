@@ -11,8 +11,11 @@ export const createMenuItem = asyncHandler(async (req: Request, res: Response) =
 
   const  menuId  = Number(req.params.menuId);
   const { itemName, price, stock} = req.body
-  const resturantId = Number(req.params.resturantId)
+  const resturantId = Number(req.params.restaurantId)
   const userId = Number(req.userId)
+
+  console.log(resturantId)
+
 
   const menuItem = await menuItemService.createMenuItem(resturantId, menuId, itemName, price, stock, userId );
 
@@ -29,8 +32,10 @@ export const updateMenuItem = asyncHandler(async (req: Request, res: Response) =
   const menuItemId = Number(req.params.menuItemId);
   const data: UpdateMenuItem = req.body;
 
-  const resturantId = Number(req.params.resturantId)
+  const resturantId = Number(req.params.restaurantId)
   const userId = Number(req.userId)
+
+
 
   const menuItem = await menuItemService.updateMenuItem(resturantId, userId,menuId, menuItemId, data);
 
@@ -70,7 +75,7 @@ export const deleteMenuItem = asyncHandler(async (req: Request, res: Response) =
   
   const menuId = Number(req.params.menuId);
   const menuItemId = Number(req.params.menuItemId);
-  const resturantId = Number(req.params.resturantId)
+  const resturantId = Number(req.params.restaurantId)
   const userId = Number(req.userId)
 
   

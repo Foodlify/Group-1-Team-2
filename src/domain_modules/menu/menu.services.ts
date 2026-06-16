@@ -4,32 +4,29 @@ import { findRestaurantById } from "../restaurant/restaurant.service";
 import { NoTAUTHORIZED } from "../../shared/exceptions/auth.exception";
 
 import { MenuResponseDto, toMenuDto } from "../../types/menu";
-import { promises } from "dns";
 
-export const createMenu = async (restaurantId: number , userId: number)  => {
+export const createMenu = async (restaurantId: number , userId: number):Promise<MenuResponseDto> => {
 
     await checkIfUserAdminInRestaurant(restaurantId, userId);
 
     const menu = await menuRepository.createMenu(restaurantId);
 
-    return menu;
+      return toMenuDto(menu);
+
 }
-export const getMenus = async (restaurantId: number) => {
+export const getMenus = async (restaurantId: number):Promise<MenuResponseDto[]> => {
     
     await findRestaurantById(restaurantId);
 
 
     const menus = await menuRepository.getMenus(restaurantId);
     
-    if (menus.length === 0) {
-    throw new MenuNotFoundException();
-    }
 
     
-    return menus;
+    return menus.map(toMenuDto);
 }
 
-export const getMenu = async (restaurantId: number, menuId: number) => {
+export const getMenu = async (restaurantId: number, menuId: number):Promise<MenuResponseDto> => {
     
     await findRestaurantById(restaurantId);
 
@@ -37,11 +34,12 @@ export const getMenu = async (restaurantId: number, menuId: number) => {
     if (!menu) {
         throw new MenuNotFoundException();
     }
-    return menu;
+
+    return toMenuDto(menu);
 }
 
 
-export const deleteMenu = async (restaurantId: number, menuId: number, userId: number) => {
+export const deleteMenu = async (restaurantId: number, menuId: number, userId: number):Promise<void> => {
     
     await checkIfUserAdminInRestaurant(restaurantId, userId);
     

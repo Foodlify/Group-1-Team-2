@@ -7,6 +7,10 @@ export const createMenu = async (restaurantId: number,) => {
             restaurantId,
             isDeleted: false,
         },
+
+        include: {
+            menuItems: true
+        }
     });
 };
 

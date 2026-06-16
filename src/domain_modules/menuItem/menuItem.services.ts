@@ -7,17 +7,19 @@ import {findRestaurantById } from "../restaurant/restaurant.service";
 import { MenuItemNotFoundException } from "../../shared/exceptions/MenuItem.exception";
 import { UpdateMenuItem } from "../../types/menuItem";
 
-export const createMenuItem = async(resturantId: number, menuId: number, itemName: string , price: number, stock: number, userId: number) => {
+import { MenuItemResponseDto, toMenuItemDto } from "../../types/menuItem"
+import { promises } from "node:fs";
+export const createMenuItem = async(resturantId: number, menuId: number, itemName: string , price: number, stock: number, userId: number):Promise<MenuItemResponseDto>=> {
 
     await checkIfUserAdminInRestaurant(resturantId, userId)
     await findMenuById(menuId);
    
     const menuItem = await menuItemRepository.createMenuItem(menuId, itemName, price, stock);
 
-    return menuItem;
+   return toMenuItemDto (menuItem);
 }
 
-export const getMenuItemById = async (menuItemId: number, menuId: number) => {
+export const getMenuItemById = async (menuItemId: number, menuId: number):Promise<MenuItemResponseDto> => {
     await findMenuById(menuId);
     const menuItem = await menuItemRepository.getMenuItemById(menuItemId, menuId);
 
@@ -25,23 +27,19 @@ export const getMenuItemById = async (menuItemId: number, menuId: number) => {
         throw new MenuItemNotFoundException(menuItemId);
     }
 
-    return menuItem;
+    return toMenuItemDto(menuItem)
 };
 
-export const getMenuItemsByMenuId = async (menuId: number) => {
+export const getMenuItemsByMenuId = async (menuId: number):Promise<MenuItemResponseDto[]> => {
     await findMenuById(menuId);
 
     const menuItems = await menuItemRepository.getMenuItemsByMenuId(menuId);
 
-    if(menuItems.length===0){
-        throw new MenuItemNotFoundException(menuId);
-    }
-
-    return menuItems;
+    return menuItems.map(toMenuItemDto);
 
 };
 
-export const updateMenuItem = async (resturantId: number, userId: number, menuId: number, menuItemId: number , data: UpdateMenuItem) => {
+export const updateMenuItem = async (resturantId: number, userId: number, menuId: number, menuItemId: number , data: UpdateMenuItem):Promise<MenuItemResponseDto> => {
 
     await checkIfUserAdminInRestaurant(resturantId, userId)
 
@@ -50,12 +48,11 @@ export const updateMenuItem = async (resturantId: number, userId: number, menuId
     await getMenuItemById(menuItemId, menuId);
 
     const menuItem = await menuItemRepository.updateMenuItem(menuId, menuItemId, data);
-   
-    return menuItem;
     
+    return toMenuItemDto(menuItem)
 };
 
-export const deleteMenuItem = async (resturantId: number, userId: number, menuId: number, menuItemId: number) => {
+export const deleteMenuItem = async (resturantId: number, userId: number, menuId: number, menuItemId: number): Promise<void> => {
 
     await checkIfUserAdminInRestaurant(resturantId, userId);
 
