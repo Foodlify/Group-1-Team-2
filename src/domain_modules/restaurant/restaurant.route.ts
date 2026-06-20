@@ -16,7 +16,7 @@ router.use('/:restaurantId/menus', menuRouter);
 router.post("/", isAuthenticated, isAuthorized("ADMIN"), validation(restaurantValidation.createRestaurant), restaurantController.createRestaurant);
 
 
-router.get("/:id", restaurantController.getRestaurant);
+router.get("/:restaurantId", restaurantController.getRestaurant);
 
 router.put("/:id", restaurantController.updateRestraurant );
 
