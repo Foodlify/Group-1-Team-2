@@ -18,9 +18,9 @@ router.post("/", isAuthenticated, isAuthorized("ADMIN"), validation(restaurantVa
 
 router.get("/:restaurantId", restaurantController.getRestaurant);
 
-router.put("/:id", restaurantController.updateRestraurant );
+router.put("/:id", isAuthenticated, isAuthorized("ADMIN"), restaurantController.updateRestraurant );
 
-router.delete("/:id", restaurantController.deleteRestraurant);
+router.delete("/:id", isAuthenticated, isAuthorized("ADMIN"),restaurantController.deleteRestraurant);
 
 router.get("/cache/stats", (req, res) => {
     res.json({

@@ -37,6 +37,7 @@ export const isAuthenticated = asyncHandler(async (req: Request, res: Response, 
   next();
 });
 
+
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   req.userId = 123;
   

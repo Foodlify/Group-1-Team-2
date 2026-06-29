@@ -1,20 +1,22 @@
 import * as menuItemRepository from "./menuItem.repository"
 import { findMenuById } from "../menu/menu.services";
-import { NoTAUTHORIZED } from "../../shared/exceptions/auth.exception";
-
-import {findRestaurantById } from "../restaurant/restaurant.service";
 
 import { MenuItemNotFoundException } from "../../shared/exceptions/MenuItem.exception";
 import { UpdateMenuItem } from "../../types/menuItem";
 
 import { MenuItemResponseDto, toMenuItemDto } from "../../types/menuItem"
-import { promises } from "node:fs";
-export const createMenuItem = async(resturantId: number, menuId: number, itemName: string , price: number, stock: number, userId: number):Promise<MenuItemResponseDto>=> {
 
-    await checkIfUserAdminInRestaurant(resturantId, userId)
+import { cache, CacheKeys } from "../../config/cache";
+
+import { checkIfUserAdminInRestaurant } from "../../shared/helper/restaurant.helper"
+export const createMenuItem = async(restaurantId: number, menuId: number, itemName: string , price: number, stock: number, userId: number):Promise<MenuItemResponseDto>=> {
+
+    await checkIfUserAdminInRestaurant(restaurantId, userId)
     await findMenuById(menuId);
    
     const menuItem = await menuItemRepository.createMenuItem(menuId, itemName, price, stock);
+
+    cache.del(CacheKeys.restaurant(restaurantId));
 
    return toMenuItemDto (menuItem);
 }
@@ -31,6 +33,7 @@ export const getMenuItemById = async (menuItemId: number, menuId: number):Promis
 };
 
 export const getMenuItemsByMenuId = async (menuId: number):Promise<MenuItemResponseDto[]> => {
+    
     await findMenuById(menuId);
 
     const menuItems = await menuItemRepository.getMenuItemsByMenuId(menuId);
@@ -39,22 +42,24 @@ export const getMenuItemsByMenuId = async (menuId: number):Promise<MenuItemRespo
 
 };
 
-export const updateMenuItem = async (resturantId: number, userId: number, menuId: number, menuItemId: number , data: UpdateMenuItem):Promise<MenuItemResponseDto> => {
+export const updateMenuItem = async (restaurantId: number, userId: number, menuId: number, menuItemId: number , data: UpdateMenuItem):Promise<MenuItemResponseDto> => {
 
-    await checkIfUserAdminInRestaurant(resturantId, userId)
+    await checkIfUserAdminInRestaurant(restaurantId, userId)
 
     await findMenuById(menuId);
 
     await getMenuItemById(menuItemId, menuId);
 
     const menuItem = await menuItemRepository.updateMenuItem(menuId, menuItemId, data);
+
+    cache.del(CacheKeys.restaurant(restaurantId));
     
     return toMenuItemDto(menuItem)
 };
 
-export const deleteMenuItem = async (resturantId: number, userId: number, menuId: number, menuItemId: number): Promise<void> => {
+export const deleteMenuItem = async (restaurantId: number, userId: number, menuId: number, menuItemId: number): Promise<void> => {
 
-    await checkIfUserAdminInRestaurant(resturantId, userId);
+    await checkIfUserAdminInRestaurant(restaurantId, userId);
 
     await findMenuById(menuId);
     
@@ -62,19 +67,9 @@ export const deleteMenuItem = async (resturantId: number, userId: number, menuId
 
     await menuItemRepository.deleteMenuItem(menuId, menuItemId);
 
+    cache.del(CacheKeys.restaurant(restaurantId));
+
 }
 
-export const checkIfUserAdminInRestaurant = async(restaurantId: number, userId: number)=>{
-
-    const restaurant = await findRestaurantById(restaurantId);
-
-    const admins = restaurant.admins; 
-    
-    const isAdmin = admins.some(admin => admin.id === userId);
-
-    if (!isAdmin) {
-        throw new NoTAUTHORIZED();
-    }
-}
 
 
