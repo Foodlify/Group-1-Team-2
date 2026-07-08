@@ -75,6 +75,7 @@ export const getCartWithItems = async (cartId: number) => {
   });
 };
 
+
 export const getCartByCustomerId = async (customerId: number) => {
     return await prisma.cart.findFirst({
         where: { 
