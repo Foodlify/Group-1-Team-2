@@ -296,6 +296,37 @@ npm run test
 
 ---
 
+## 🧪 Load Testing & Performance Validation
+
+The order creation flow (`POST /api/v1/order`) was load-tested with **Apache JMeter** to validate correctness — not just speed — under concurrent traffic.
+
+### What was tested
+
+Using 1,000 concurrent virtual users (JMeter Thread Group + CSV Data Set Config), the flow was tested against two scenarios:
+
+| Scenario | Concurrent Requests | Stock Level | Error % |
+|---|---|---|---|
+| **Baseline** (ample stock) | 1,000 | 100,000 units | **0.0%** |
+| **Scarcity** (limited-item flash-sale simulation) | 1,000 (20 competing for the same item) | 5 units | **1.5%** — reproduced identically across 2 independent runs |
+
+### Key finding: preventing overselling under concurrency
+
+The original stock check validated availability but never atomically consumed it, opening a **check-then-act race condition** — under concurrent load, more units could be sold than physically existed. This was fixed by combining the check and the decrement into a single atomic database operation:
+
+```typescript
+await client.menuItem.updateMany({
+  where: { id: menuItemId, stock: { gte: quantity } },
+  data: { stock: { decrement: quantity } },
+});
+```
+
+With the fix in place, exactly as many orders succeed as there is stock available — verified down to `stock = 0` with zero overselling, and every rejected request receiving a clear, typed error instead of a generic server failure.
+
+📄 **Full write-up, methodology, and all discovered bugs:** [`docs/load-testing-case-study.md`](docs/load-testing-case-study.md)
+
+---
+
+
 ## 📈 Future Improvements
 
 * AI-based food recommendations
