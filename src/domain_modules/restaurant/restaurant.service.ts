@@ -3,7 +3,9 @@ import { cache, CacheKeys } from "../../config/cache";
 import { logger } from "../../config/logger";
 import { NOTALLOWEDTOCREATEMORETHANONE, RestaurantNotFoundException } from "../../shared/exceptions/restaurant.exception";
 import * as restaurantRepo from "./restaurant.repository";
-import { RestaurantResponseDto, toRestaurantDto, createRestaurantDto, updateRestaurantDto } from "../../types/restaurant"
+import { RestaurantResponseDto, toRestaurantDto, createRestaurantDto, updateRestaurantDto } from "../../types/restaurant";
+import {checkIfUserAdminInRestaurant} from "../../shared/helper/restaurant.helper"
+
 
 
 export const getRestaurant = async (restaurantId: number):Promise<RestaurantResponseDto> => {
@@ -34,11 +36,9 @@ export const createRestaurant = async ( data:createRestaurantDto, userId: number
     return dto;
 };
 
-export const updateRestaurant = async (restaurantId: number, data: updateRestaurantDto): Promise<RestaurantResponseDto> => {
+export const updateRestaurant = async (restaurantId: number, data: updateRestaurantDto,userId: number): Promise<RestaurantResponseDto> => {
 
-    const exists = await restaurantRepo.getRestaurantById(restaurantId);
-    if (!exists) throw new RestaurantNotFoundException();
-
+    await checkIfUserAdminInRestaurant(restaurantId, userId);
     
     const updated = await restaurantRepo.updateRestaurant(restaurantId, data);
     const dto = toRestaurantDto(updated);
@@ -49,10 +49,9 @@ export const updateRestaurant = async (restaurantId: number, data: updateRestaur
     return dto;
 }
 
-export const deleteRestaurant = async (restaurantId: number) => {
-    const restaurant = await restaurantRepo.getRestaurantById(restaurantId);
-    if (!restaurant) throw new RestaurantNotFoundException();
-
+export const deleteRestaurant = async (restaurantId: number , userId: number ) => {
+    
+    await checkIfUserAdminInRestaurant(restaurantId, userId);
 
     await restaurantRepo.deleteRestaurantCascade(restaurantId);
     cache.del(CacheKeys.restaurant(restaurantId));
@@ -63,7 +62,7 @@ export const findRestaurantById = async (restaurantId: number) => {
     if (!restaurant) {
         throw new RestaurantNotFoundException();
     }
-
     return restaurant;
 }
+
 

@@ -7,19 +7,18 @@ import { NoTAUTHORIZED, NOTAUTHENTICATED } from "../shared/exceptions/auth.excep
 
 
 
-
 export const isAuthenticated = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   // get token from cookies
   const token = req.cookies.token;
   if (!token) {
     throw new NOTAUTHENTICATED(); 
   }
-  // verify token and extract userId
-    const decoded: JwtCustomPayload = verifyToken(token);
-  //  find user by userId and attach to req.user
+  const decoded: JwtCustomPayload = verifyToken(token);
+
   const user = await prisma.user.findUnique({
     where: { id: decoded.userId },
   });
+
   if (!user) {
     throw new NOTAUTHENTICATED(); 
   }
@@ -30,20 +29,20 @@ export const isAuthenticated = asyncHandler(async (req: Request, res: Response, 
     throw new NOTAUTHENTICATED();
   }
 }
-  // attach user to req.user
   req.userId = user.id;
   req.userRole = user.role;
 
   next();
 });
 
+
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  req.userId = 123;
-  
+  const userId = Number(req.headers["x-user-id"]);
+
+  req.userId = userId || 1;
+
   next();
 };
-
-
 
 
 // export const protect = asyncHandler(async (req: any, res: any, next: any) => {

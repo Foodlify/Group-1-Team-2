@@ -13,15 +13,15 @@ export class FinalizeOrderHandler extends OrderHandler {
   ): Promise<OrderResponse> {
 
 
-    const orderData = {
-      customer : response.customerId,
-      restaurant: response.restaurantId,
-      address: request.addressId,
-      phone: request.phone,
-      notes: request.notes,
-      paymentMethod: request.paymentMethod,
-      totalPrice: response.totalPrice,
-    }
+const orderData = {
+  customerId: response.customerId,
+  restaurantId: response.restaurantId,
+  addressId: request.addressId,
+  phone: request.phone,
+  notes: request.notes,
+  paymentMethod: request.paymentMethod,
+  totalPrice: response.totalPrice,
+}
 
     const order = await orderRepo.createOrder(orderData, request.tx);
 

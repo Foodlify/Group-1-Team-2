@@ -38,6 +38,10 @@ app.get('/cancel', (req:Request, res:Response) => {
   res.send(' تم إلغاء العملية. حاول مرة أخرى.');
 });
 
+app.get("/ping", (req, res) => {
+    res.json({ message: "OK" });
+});
+
 // ================= Swagger =================
 const spec = YAML.load(path.join(__dirname, 'swagger.yaml'));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(spec));
