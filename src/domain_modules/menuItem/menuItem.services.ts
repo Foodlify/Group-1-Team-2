@@ -1,15 +1,11 @@
-import * as menuItemRepository from "./menuItem.repository"
+import * as menuItemRepository from "./menuItem.repository";
 import { findMenuById } from "../menu/menu.services";
-
+import { SomeOfItemsNotAvailableException } from "../../shared/exceptions/MenuItem.exception";
 import { MenuItemNotFoundException } from "../../shared/exceptions/MenuItem.exception";
 import { UpdateMenuItem } from "../../types/menuItem";
+import {DBClient} from "../../types/PrismaClientOrTx"
 
-import { MenuItemResponseDto, toMenuItemDto } from "../../types/menuItem"
-
-import { cache, CacheKeys } from "../../config/cache";
-
-import { checkIfUserAdminInRestaurant } from "../../shared/helper/restaurant.helper"
-export const createMenuItem = async(restaurantId: number, menuId: number, itemName: string , price: number, stock: number, userId: number):Promise<MenuItemResponseDto>=> {
+export const createMenuItem = async(menuId: number, itemName: string , price: number, stock: number) => {
 
     await checkIfUserAdminInRestaurant(restaurantId, userId)
     await findMenuById(menuId);
@@ -67,9 +63,15 @@ export const deleteMenuItem = async (restaurantId: number, userId: number, menuI
 
     await menuItemRepository.deleteMenuItem(menuId, menuItemId);
 
-    cache.del(CacheKeys.restaurant(restaurantId));
-
 }
 
 
-
+export const reserveStock = async (
+  menuItemId: number,
+  quantity: number,
+  client: DBClient
+) => {
+  const result = await menuItemRepository.decrementStockIfAvailable(menuItemId, quantity, client);
+  return result;
+  
+};

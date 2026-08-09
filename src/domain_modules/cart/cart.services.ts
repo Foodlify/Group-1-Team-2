@@ -8,7 +8,7 @@ import { CartNotFoundExeption, MultipleRestaurantCartException } from "../../sha
 import { MenuItem } from "./cart.model";
 import { Decimal } from "@prisma/client/runtime/library";
 
-export const addToCart = async (userId: number, menuItemId: number, quantity: number, restaurantId: number) => {
+export const addToCart = async (userId: string, menuItemId: number, quantity: number, restaurantId: number) => {
 
   const menuItem = await cartRepo.findMenuItemById(menuItemId);
 
@@ -56,7 +56,7 @@ const addItemToCart = async (cartId: number, menuItemId: number, quantity: numbe
   );
 };
 
-export const viewCart = async (userId: number) => {
+export const viewCart = async (userId: string) => {
 
   const customer = await customerServices.getCustomerByUserId(userId);
   const cart = await cartRepo.getCartByCustomerId(customer.id);
@@ -73,7 +73,7 @@ export const viewCart = async (userId: number) => {
 return buildCartResponse(cart)
 }
 
-export const modifyCart = async (userId: number, menuItemId: number, quantity: number, restaurantId: number) => {
+export const modifyCart = async (userId: string, menuItemId: number, quantity: number, restaurantId: number) => {
   const customer = await customerServices.getCustomerByUserId(userId);
 
   const menuItem = await cartRepo.findMenuItemById(menuItemId);
@@ -88,7 +88,7 @@ export const modifyCart = async (userId: number, menuItemId: number, quantity: n
   return await cartRepo.getCartByCustomerId(customer.id);
 }
 
-export const removeItem = async (userId: number, menuItemId: number) => {
+export const removeItem = async (userId: string, menuItemId: number) => {
 const customer = await customerServices.getCustomerByUserId(userId);
 
 const cart= await cartRepo.getCartByCustomerId(customer.id);
@@ -107,7 +107,7 @@ const cart= await cartRepo.getCartByCustomerId(customer.id);
   return await cartRepo.getCartByCustomerId(customer.id);
 };
 
-export const clearCart = async (userId: number) => {
+export const clearCart = async (userId: string) => {
   const customer = await customerServices.getCustomerByUserId(userId);
 
 const cart= await cartRepo.getCartByCustomerId(customer.id);

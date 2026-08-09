@@ -79,22 +79,64 @@ export class InvalidOTPException extends Error {
   }
 }
 
-export class NoTAUTHORIZED extends Error {
+export class ForbiddenException  extends Error{
     statusCode: number;
-
-    constructor() {
-        super("You are not authorized to perform this action");
-        this.statusCode = StatusCodes.FORBIDDEN;
+    constructor(){
+        super("You are not authorized to access this resource");
+        this.statusCode = StatusCodes.FORBIDDEN
     }
 }
 
+export class InvalidRefreshTokenException extends Error {
+  statusCode: number;
 
-export class NOTAUTHENTICATED extends Error {
-      statusCode: number;
+  constructor() {
+    super("Invalid or expired refresh token");
+    this.statusCode = StatusCodes.UNAUTHORIZED;
+  }
+}
 
-    constructor() {
-        super("You are not authenticated to perform this action");
-        this.statusCode = StatusCodes.FORBIDDEN;
-    }
+export class SecurityBreachException extends Error {
+  statusCode: number;
 
+  constructor() {
+    super("Token reuse detected. All sessions have been terminated for security.");
+    this.statusCode = StatusCodes.UNAUTHORIZED;
+  }
+}
+
+export class OtpNotFoundException extends Error {
+  statusCode: number;
+
+  constructor() {
+    super("No active OTP found. Please request a new one.");
+    this.statusCode = StatusCodes.BAD_REQUEST;
+  }
+}
+
+export class OtpMaxAttemptsExceededException extends Error {
+  statusCode: number;
+
+  constructor() {
+    super("Max attempts exceeded. Please request a new OTP.");
+    this.statusCode = StatusCodes.TOO_MANY_REQUESTS;
+  }
+}
+
+export class InvalidResetTokenException extends Error {
+  statusCode: number;
+
+  constructor() {
+    super("Invalid or expired reset token");
+    this.statusCode = StatusCodes.UNAUTHORIZED;
+  }
+}
+
+export class ResetTokenAlreadyUsedException extends Error {
+  statusCode: number;
+
+  constructor() {
+    super("This reset token has already been used");
+    this.statusCode = StatusCodes.UNAUTHORIZED;
+  }
 }

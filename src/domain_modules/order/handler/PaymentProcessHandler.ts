@@ -13,7 +13,7 @@ export class PaymentProcessHandler extends OrderHandler{
     const strategies: Record<PaymentMethod, PaymentStartegy> = {
     CASH: new CashPaymentStrategy(),
     CARD: new CardPaymentStrategy(),
-}
+  }
     const strategy:PaymentStartegy  = strategies[request.paymentMethod];
     console.log(`Processing payment method: ${request.paymentMethod}`);
 

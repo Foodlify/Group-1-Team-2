@@ -15,7 +15,7 @@ paths:
       tags:
         - Cart
       responses:
-        '200':
+        "200":
           description: Cart retrieved successfully
           content:
             application/json:
@@ -31,19 +31,18 @@ paths:
                     itemTotal: 99.98
                 totalPrice: 99.98
                 itemCount: 1
-        '400':
+        "400":
           description: Invalid User ID
           content:
             application/json:
               example:
                 message: "Invalid User ID"
-        '401':
+        "401":
           description: Unauthorized - Missing or invalid token
           content:
             application/json:
               example:
-               message: Unauthorized - Missing or invalid token
-              
+                message: Unauthorized - Missing or invalid token
 
     put:
       summary: Modify cart item quantity
@@ -68,28 +67,28 @@ paths:
                   minimum: 1
                   example: 3
       responses:
-        '200':
+        "200":
           description: Cart modified successfully
           content:
             application/json:
               example:
-                  message:
-                    example: "Cart modified successfully"
-                  data:
-                    cart:
-                      cartId: 10
-                      status: "ACTIVE"
-                      items:
-                        - itemId: 1
-                          productId: 5
-                          name: "Burger"
-                          price: 49.99
-                          quantity: 3
-                          itemTotal: 149.97
-                      totalPrice: 149.97
-                      itemCount: 1
+                message:
+                  example: "Cart modified successfully"
+                data:
+                  cart:
+                    cartId: 10
+                    status: "ACTIVE"
+                    items:
+                      - itemId: 1
+                        productId: 5
+                        name: "Burger"
+                        price: 49.99
+                        quantity: 3
+                        itemTotal: 149.97
+                    totalPrice: 149.97
+                    itemCount: 1
 
-        '400':
+        "400":
           description: Bad Request - Invalid input or not enough stock
           content:
             application/json:
@@ -100,14 +99,14 @@ paths:
                 notEnoughStock:
                   value:
                     message: "Not enough stock available"
-        '401':
+        "401":
           description: Unauthorized - Missing or invalid token
           content:
             application/json:
               example:
                 message: " Unauthorized - Missing or invalid token "
-              
-        '404':
+
+        "404":
           description: Menu item not found
           content:
             application/json:
@@ -120,11 +119,11 @@ paths:
       tags:
         - Cart
       responses:
-        '200':
+        "200":
           description: Cart cleared successfully
           content:
             application/json:
-              example: 
+              example:
                 message: "Cart cleared successfully"
                 data:
                   cart:
@@ -133,15 +132,15 @@ paths:
                     items: []
                     totalPrice: 0
                     itemCount: 0
-                  
-        '401':
+
+        "401":
           description: Unauthorized - Missing or invalid token
           content:
             application/json:
               example:
                 message: "Unauthorized - Missing or invalid token"
- 
-        '404':
+
+        "404":
           description: Cart not found
           content:
             application/json:
@@ -172,7 +171,7 @@ paths:
                   minimum: 1
                   example: 2
       responses:
-        '201':
+        "201":
           description: Item added to cart successfully
           content:
             application/json:
@@ -191,8 +190,8 @@ paths:
                         itemTotal: 99.98
                     totalPrice: 99.98
                     itemCount: 1
- 
-        '400':
+
+        "400":
           description: Bad Request - Invalid input or not enough stock
           content:
             application/json:
@@ -203,21 +202,21 @@ paths:
                 notEnoughStock:
                   value:
                     message: "Not enough product stock available"
- 
-        '401':
+
+        "401":
           description: Unauthorized - Missing or invalid token
           content:
             application/json:
               example:
                 message: "Unauthorized - Missing or invalid token"
- 
-        '404':
+
+        "404":
           description: Product not found
           content:
             application/json:
               example:
                 message: "Product not found"
- 
+
   /api/v1/cart/items/{menuItemId}:
     delete:
       summary: Remove item from cart
@@ -232,7 +231,7 @@ paths:
             type: integer
           example: 5
       responses:
-        '200':
+        "200":
           description: Item removed from cart successfully
           content:
             application/json:
@@ -251,15 +250,15 @@ paths:
                         itemTotal: 79.99
                     totalPrice: 79.99
                     itemCount: 1
- 
-        '401':
+
+        "401":
           description: Unauthorized - Missing or invalid token
           content:
             application/json:
               example:
                 message: "Unauthorized - Missing or invalid token"
- 
-        '404':
+
+        "404":
           description: Not Found
           content:
             application/json:

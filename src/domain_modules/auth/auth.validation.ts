@@ -1,25 +1,33 @@
-import {z} from "zod";
+import { z } from "zod";
 
-export const signupSchema = z.object({
-    name: z.string({required_error: "name is required"}).min(6,'name must be at least 6 characters'),
-    email: z.string({required_error: "email is required"}).email("email is invalid"),
-    password: z.string({ required_error: "password is required" })
-  .min(6, "password must be at least 6 characters"),
-    phone: z.string({required_error: "phone is required"}).regex(/^01[0125][0-9]{8}$/, "phone must be a valid Egyptian number"),
-})
+export const registerSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  phone: z.string().min(8, "Invalid phone number"),
+});
 
 export const loginSchema = z.object({
-     email: z.string({required_error: "email is required"}).email("email is invalid"),
-    password: z.string({ required_error: "password is required" })
-  .min(6, "password must be at least 6 characters")
-})
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
 
-export const forgetPasswordSchema = z.object({
-    email: z.string({required_error: "email is required"}).email("email is invalid"),
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+export const verifyOtpSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  otp: z.string().length(6, "OTP must be 6 digits"),
 });
 
 export const resetPasswordSchema = z.object({
-    email: z.string({required_error: "email is required"}).email("email is invalid"),
-    newPassword: z.string({required_error: "new password is required"}).min(6),
-    otp: z.string({required_error: "otp is required"}).length(6, "otp must be 6 digits"),
-})
+  resetToken: z.string().min(1, "Reset token is required"),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export type RegisterDTO = z.infer<typeof registerSchema>;
+export type LoginDTO = z.infer<typeof loginSchema>;
+export type ForgotPasswordDTO = z.infer<typeof forgotPasswordSchema>;
+export type VerifyOtpDTO = z.infer<typeof verifyOtpSchema>;
+export type ResetPasswordDTO = z.infer<typeof resetPasswordSchema>;

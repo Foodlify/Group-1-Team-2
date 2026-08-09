@@ -1,48 +1,55 @@
 import prisma from "../../../lib/prisma";
-import { Decimal } from "@prisma/client/runtime/library";
+
 import { SomeOfItemsNotAvailableException } from "../../../shared/exceptions/MenuItem.exception";
 import { OrderRequest } from "../../../types/OrderRequest";
 import { OrderResponse } from "../../../types/OrderResponse";
+
 import { OrderHandler } from "./orderHandler";
+
 import * as cartRepo from "../../cart/cart.repository";
+import * as menuService from "../../menuItem/menuItem.services";
 
-export class ItemsAvailabilityCheckHandler  extends OrderHandler{
-    async handle(request:OrderRequest , response:OrderResponse):Promise<OrderResponse>{ 
-      const client = request.tx ?? prisma
+export class ItemsAvailabilityCheckHandler extends OrderHandler {
+  async handle(
+    request: OrderRequest,
+    response: OrderResponse
+  ): Promise<OrderResponse> {
+    const client = request.tx ?? prisma;
 
-      const cartItems = await cartRepo.getCartItems(request.cartId,client);
+    const cartItems = await cartRepo.getCartItems(request.cartId, client);
+    const menuItemIds = cartItems.map((item) => item.menuItemId);
+    const menuItems = await cartRepo.getMenuItemsByIds(menuItemIds, client);
+    const menuItemMap = new Map(menuItems.map((item) => [item.id, item]));
 
-       const menuItemsId= cartItems.map(item=>item.menuItemId);
 
-       const menuItems = await cartRepo.getMenuItemsByIds(menuItemsId,client);
-    
-       const menuItemMap = new Map(menuItems.map(item=>[item.id,item]));
+    for (const cartItem of cartItems) {
+      const menuItem = menuItemMap.get(cartItem.menuItemId);
 
-        let totalPrice = 0;
-        const orderItems = [];
-        
-       // check stock and exist
-       for(const item of cartItems){
-         const menuItem = menuItemMap.get(item.menuItemId);
-         if(!menuItem) throw new SomeOfItemsNotAvailableException();
-         if(menuItem.stock < item.quantity) throw new SomeOfItemsNotAvailableException();
+      if (!menuItem) {
+        throw new SomeOfItemsNotAvailableException();
+      }
 
-          totalPrice += Number(menuItem.price) * item.quantity;
-       
-         orderItems.push({
-           menuItemId: menuItem.id,
-           itemName: menuItem.itemName,
-           price: Number(menuItem.price),
-           quantity: item.quantity,
-           itemTotal: new Decimal( Number(menuItem.price) * item.quantity)
-         })
-       }
-
-        response.totalPrice =  new Decimal(totalPrice);
-        response.orderItems = orderItems;
-
-        
-       return this.handleNext(request,response);
-
+      if (cartItem.quantity <= 0) {
+        throw new Error("Invalid quantity");
+      }
     }
+
+    const reservationResults = await Promise.all(
+      cartItems.map((cartItem) =>
+        menuService.reserveStock(
+          cartItem.menuItemId,
+          cartItem.quantity,
+          client
+        )
+      )
+    );
+
+    const hasFailed = reservationResults.some((res) => res.count === 0);
+    if (hasFailed) {
+      throw new SomeOfItemsNotAvailableException();
+    }
+
+   
+    return this.handleNext(request, response);
+  }
 }

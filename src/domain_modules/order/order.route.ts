@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { authenticate } from "../../middlewares/authentication.middleware";
 import { validation } from "../../middlewares/validation.middleware";
 import * as orderSchemas from "./order.validation";
 import * as orderController from "./order.controller";
+import { authenticate } from "../../middlewares/authenticate";
+
 const router = Router();
 
-router.post("/createOrder", authenticate, validation(orderSchemas.createOrderSchema), orderController.createOrder);
 router.post("/", authenticate, validation(orderSchemas.createOrderSchema), orderController.createOrder);
-router.get("/", authenticate, orderController.viewOrders);
-router.get("/:orderId", authenticate, validation(orderSchemas.getOrderSchema), orderController.viewOrder);
+router.get("/", orderController.viewOrders);
+router.get("/:orderId", validation(orderSchemas.getOrderSchema), orderController.viewOrder);
 
 export default router;

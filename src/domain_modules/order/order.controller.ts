@@ -7,9 +7,8 @@ import { StatusCodes } from "http-status-codes";
 
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   const request: OrderRequest = {
-    userId: req.userId as number,
+    userId: req.userId as string,
     cartId: req.body.cartId,
-    restaurantId: req.body.restaurantId,
     addressId: req.body.addressId,
     phone: req.body.phone,
     notes: req.body.notes,
@@ -27,7 +26,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 
 
 export const viewOrders = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.userId as number;
+  const userId = req.userId as string;
 
   const orders = await OrderServices.getAllOrders(userId);
 
@@ -35,7 +34,7 @@ export const viewOrders = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const viewOrder = asyncHandler(async (req: Request, res: Response) => {
-   const userId = req.userId as number;
+   const userId = req.userId as string;
    const orderId = Number(req.params.orderId);
 
    const order = await OrderServices.getOrderById(userId, orderId);

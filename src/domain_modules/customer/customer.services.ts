@@ -3,7 +3,7 @@ import {CustomerNotFound} from "../../shared/exceptions/Customer.exception"
 import { CustomerUpdateData } from "../../types/customer"
 
 
-export const getCustomerByUserId = async (userId: number) => {  
+export const getCustomerByUserId = async (userId: string) => {  
     const customer = await customerRepo.getCustomerProfileByUserId(userId)
 
     if (!customer) throw new CustomerNotFound(userId.toString())
@@ -11,7 +11,7 @@ export const getCustomerByUserId = async (userId: number) => {
     return customer
 }
 
-export const updateCustomerProfile = async (userId: number, { name, email, phone }: { name?: string; email?: string; phone?: string }) => {
+export const updateCustomerProfile = async (userId: string, { name, email, phone }: { name?: string; email?: string; phone?: string }) => {
     const customer = await customerRepo.getCustomerProfileByUserId(userId)
     if (!customer) throw new CustomerNotFound(userId.toString())
       const updateData: CustomerUpdateData = {};
