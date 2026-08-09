@@ -1,52 +1,59 @@
-import * as authServices from "./auth.services";
+import { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { sendSucess } from "../../utils/response";
 import { StatusCodes } from "http-status-codes";
-import{Request,Response,NextFunction} from "express"
-import { setAuthCookie } from "../../utils/authCookies";
+import * as authService from "./auth.service";
+import { InvalidRefreshTokenException } from "../../shared/exceptions/auth.exception";
 
+const REFRESH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict" as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
 
-export const signup = asyncHandler(async (req: Request, res: Response) => {
-    
-    const result = await authServices.signupService(req.body);
-  
-    setAuthCookie(res, result.token);
-
-    sendSucess(res, { message: "User created successfully", data:{
-        user: result.user},
-        statusCode:StatusCodes.CREATED
-    });  
+export const register = asyncHandler(async (req: Request, res: Response) => {
+  const user = await authService.register(req.body);
+  sendSucess(res, { message: "Registered successfully", statusCode: StatusCodes.CREATED, data: { user } });
 });
 
-export const login = asyncHandler(async(req:Request , res:Response)=>{
-    const result = await authServices.loginService(req.body.email,req.body.password);
-    
-    setAuthCookie(res, result.token);
+export const login = asyncHandler(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const deviceInfo = req.headers["user-agent"];
+  const ipAddress = req.ip;
 
-    sendSucess(res, { message: "User logged in successfully", data:{
-        user: result.user},
-        statusCode:StatusCodes.OK
-    });
-})
+  const { accessToken, refreshToken } = await authService.login(email, password, deviceInfo, ipAddress);
 
-export const forgetPassword = asyncHandler(async (req: any, res: any) => {
-    const { email } = req.body;
-    await authServices.forgetPassword(email);
-    sendSucess(res, { message: "OTP sent to email successfully", statusCode:StatusCodes.OK });
+  res.cookie("refreshToken", refreshToken, REFRESH_COOKIE_OPTIONS);
+
+  sendSucess(res, { statusCode: StatusCodes.OK, data: { accessToken } });
 });
 
-export const resetPassword = asyncHandler(async (req: any, res: any) => {
-    const {email, otp, newPassword} = req.body;
-    await authServices.resetPassword(email, otp, newPassword);
-    sendSucess(res, { message: "Password reset successfully", statusCode:StatusCodes.OK });
+export const refresh = asyncHandler(async (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) throw new InvalidRefreshTokenException();
+
+  const { accessToken, refreshToken: newRefreshToken } = await authService.refreshAccessToken(refreshToken);
+
+  res.cookie("refreshToken", newRefreshToken, REFRESH_COOKIE_OPTIONS);
+
+  sendSucess(res, { statusCode: StatusCodes.OK, data: { accessToken } });
 });
 
-export const logout = asyncHandler(async (req: Request, res: Response) => {
-    res.clearCookie("token", {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-    });
-    
-    sendSucess(res, { message: "User logged out successfully", statusCode:StatusCodes.OK });
+export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.body;
+  await authService.handleForgotPassword(email);
+  sendSucess(res, { message: "If this email is registered, an OTP has been sent to it." });
+});
+
+export const verifyOtp = asyncHandler(async (req: Request, res: Response) => {
+  const { email, otp } = req.body;
+  const resetToken = await authService.handleVerifyOtp(email, otp);
+  sendSucess(res, { data: { resetToken } });
+});
+
+export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
+  const { resetToken, newPassword } = req.body;
+  await authService.handleResetPassword(resetToken, newPassword);
+  sendSucess(res, { message: "Password reset successfully." });
 });
