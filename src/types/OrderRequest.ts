@@ -1,8 +1,7 @@
 import { PaymentMethod, Prisma } from "@prisma/client";
 export interface OrderRequest {
     cartId: number;        
-    userId: number;    
-    restaurantId: number;  
+    userId: string;    
     addressId: number;   
     phone: string;      
     notes?: string;        

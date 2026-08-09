@@ -1,8 +1,8 @@
 import prisma from "../../../lib/prisma";
+import { logger } from "../../../config/logger";
 import { OrderRequest } from "../../../types/OrderRequest";
 import { OrderResponse } from "../../../types/OrderResponse";
 import { OrderHandler } from "./orderHandler";
-import { logger } from "../../../config/logger";
 import * as orderRepo from "../order.repository";
 import * as transactionRepo from "../../transaction/transaction.repostiory";
 
@@ -11,36 +11,33 @@ export class FinalizeOrderHandler extends OrderHandler {
     request: OrderRequest,
     response: OrderResponse
   ): Promise<OrderResponse> {
+    const client = request.tx ?? prisma;
 
 
     const orderData = {
-      customer : response.customerId,
-      restaurant: response.restaurantId,
-      address: request.addressId,
+      customerId: response.customerId,
+      restaurantId: response.restaurantId,
+      addressId: response.addressId,
       phone: request.phone,
       notes: request.notes,
       paymentMethod: request.paymentMethod,
       totalPrice: response.totalPrice,
-    }
+    };
 
-    const order = await orderRepo.createOrder(orderData, request.tx);
+    const order = await orderRepo.createOrder(orderData, client);
 
-    await orderRepo.createOrderItems(
-    response.orderItems,
-    order.id,
-    request.tx
-  );
+    const transactionData = {
+      orderId: order.id,
+      customerId: response.customerId,
+      paymentMethod: request.paymentMethod,
+      shippingFee: 10,
+      totalAmount: response.totalPrice,
+    };
 
-  const transactionData = {
-        orderId: order.id,
-        customerId: response.customerId,
-        paymentMethod: request.paymentMethod,
-        shippingFee: 10,
-        totalAmount: response.totalPrice,
-      };
-
-    await transactionRepo.createTransaction(transactionData, request.tx);
-
+    await Promise.all([
+      orderRepo.createOrderItems(response.orderItems, order.id, client),
+      transactionRepo.createTransaction(transactionData, client),
+    ]);
 
     response.orderId = order.id;
 
@@ -48,8 +45,9 @@ export class FinalizeOrderHandler extends OrderHandler {
       orderId: order.id,
       customerId: response.customerId,
       totalPrice: response.totalPrice,
-      PaymentMethod: request.paymentMethod,
+      paymentMethod: request.paymentMethod,
     });
+
     return this.handleNext(request, response);
   }
 }

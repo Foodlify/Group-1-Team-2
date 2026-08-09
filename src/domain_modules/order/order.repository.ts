@@ -58,9 +58,9 @@ export const getOrderById = async (id: number):Promise<Order|null> => {
     return await prisma.order.findUnique({ where: { id } })
 }
 
-export const findAllOrdersByUserId = async (userId: number) => {
+export const findAllOrdersByUserId = async (customerId: number) => {
     return await prisma.order.findMany({
-        where: { customerId: userId },
+        where: { customerId },
         include: {
             orderItems: {
                 include: {
@@ -71,9 +71,9 @@ export const findAllOrdersByUserId = async (userId: number) => {
     });
 };
 
-export const findOrderByIdAndUserId = async (orderId: number, userId: number) => {
+export const findOrderByIdAndUserId = async (orderId: number, customerId: number) => {
     return await prisma.order.findFirst({
-        where: { id: orderId, customerId: userId },
+        where: { id: orderId, customerId },
         include: {
             orderItems: {
                 include: {

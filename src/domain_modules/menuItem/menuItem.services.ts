@@ -1,9 +1,9 @@
-import { asyncHandler } from "../../utils/asyncHandler";
-import * as menuItemRepository from "./menuItem.repository"
+import * as menuItemRepository from "./menuItem.repository";
 import { findMenuById } from "../menu/menu.services";
-
+import { SomeOfItemsNotAvailableException } from "../../shared/exceptions/MenuItem.exception";
 import { MenuItemNotFoundException } from "../../shared/exceptions/MenuItem.exception";
 import { UpdateMenuItem } from "../../types/menuItem";
+import {DBClient} from "../../types/PrismaClientOrTx"
 
 export const createMenuItem = async(menuId: number, itemName: string , price: number, stock: number) => {
 
@@ -59,5 +59,12 @@ export const deleteMenuItem = async (menuId: number, menuItemId: number) => {
 }
 
 
-
-
+export const reserveStock = async (
+  menuItemId: number,
+  quantity: number,
+  client: DBClient
+) => {
+  const result = await menuItemRepository.decrementStockIfAvailable(menuItemId, quantity, client);
+  return result;
+  
+};

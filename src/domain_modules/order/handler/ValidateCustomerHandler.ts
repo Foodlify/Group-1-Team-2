@@ -10,15 +10,14 @@ export class ValidateCustomerExistHandler extends OrderHandler {
     async handle(request: OrderRequest, response: OrderResponse): Promise<OrderResponse> {
         
         const client = request.tx ?? prisma
+
         const customer = await customerRepo.getCustomerProfileByUserId(request.userId, client);
-        
         if (!customer) {
             throw new CustomerNotFound(request.userId.toString());
         }
         
-
         response.customerId = customer.id;
-
+        
         return this.handleNext(request, response);
     }
 }

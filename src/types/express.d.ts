@@ -3,14 +3,14 @@ import {Role} from "@prisma/client";
 
 declare module "express-serve-static-core" {
   interface Request {
-    userId?: number;
+    userId?: string;
   }
 }
 
 declare global{
   namespace Express {
     interface Request {
-      userId?: number;
+      userId?: string;
       userRole?: Role;
     }
   }

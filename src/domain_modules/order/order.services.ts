@@ -10,7 +10,10 @@ import { OrderResponse } from "../../types/OrderResponse";
 import { logger } from "../../config/logger";
 import prisma from './../../lib/prisma';
 import * as orderRepo from "./order.repository";
+import * as customerRepo from "../customer/customer.repository";
 import { OrderNotFoundException } from "../../shared/exceptions/order.exception";
+import { CustomerNotFound } from "../../shared/exceptions/Customer.exception";
+import { OrderPricingHandler } from "./handler/OrderPricingHandler";
 
 
 export const createOrder = async (request: OrderRequest): Promise<OrderResponse> => {
@@ -24,15 +27,14 @@ export const createOrder = async (request: OrderRequest): Promise<OrderResponse>
 
   await prisma.$transaction(async (tx) => {
     request.tx = tx;
-
     const chain = OrderHandler.processOrder(
       new CartCheckHandler(),
       new ValidateCustomerExistHandler(),
       new validateAddressHandler(),
       new ItemsAvailabilityCheckHandler(),
+      new OrderPricingHandler(),
       new FinalizeOrderHandler(),
     );
-
     response = await chain.handle(request, {} as OrderResponse);
   });
 
@@ -46,12 +48,18 @@ export const createOrder = async (request: OrderRequest): Promise<OrderResponse>
   return response;
 };
 
-export const getAllOrders = async (userId: number) => {
-    return await orderRepo.findAllOrdersByUserId(userId);
+export const getAllOrders = async (userId: string) => {
+    const customer = await customerRepo.getCustomerProfileByUserId(userId);
+    if (!customer) throw new CustomerNotFound(userId);
+
+    return await orderRepo.findAllOrdersByUserId(customer.id);
 };
 
-export const getOrderById = async (userId: number, orderId: number) => {
-    const order = await orderRepo.findOrderByIdAndUserId(orderId, userId);
+export const getOrderById = async (userId: string, orderId: number) => {
+    const customer = await customerRepo.getCustomerProfileByUserId(userId);
+    if (!customer) throw new CustomerNotFound(userId);
+
+    const order = await orderRepo.findOrderByIdAndUserId(orderId, customer.id);
     if (!order) {
         throw new OrderNotFoundException();
     }

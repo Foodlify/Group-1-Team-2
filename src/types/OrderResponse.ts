@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
 export interface OrderResponse {
     customerId: number;
     totalPrice:  Prisma.Decimal;
@@ -6,10 +7,11 @@ export interface OrderResponse {
     orderItems: {
         menuItemId: number;
         itemName: string;
-        price: number;
+        price: Decimal;
         quantity: number;
         itemTotal:  Prisma.Decimal;
     }[];
     orderId: number;
     paymentUrl?: string;
+    addressId: number
 }

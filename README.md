@@ -1,4 +1,4 @@
-# 🍔 Foodlify 
+# 🍔 Foodlify
 
 A scalable and modular backend system for a food delivery platform built to handle restaurants, orders, users, and real-time delivery operations.
 
@@ -12,11 +12,11 @@ Foodlify is a backend service designed to power a modern food delivery applicati
 
 ## 🏗️ Tech Stack
 
-* **Backend Framework:** Node.js / Express.js/ TypeScript
-* **Database:** PostgreSQL
-* **ORM:** Prisma
-* **Authentication:** JWT
-* **Containerization:** Docker
+- **Backend Framework:** Node.js / Express.js/ TypeScript
+- **Database:** PostgreSQL
+- **ORM:** Prisma
+- **Authentication:** JWT
+- **Containerization:** Docker
 
 ---
 
@@ -25,7 +25,6 @@ Foodlify is a backend service designed to power a modern food delivery applicati
 The ERD covers the core entities: Users, Restaurants, Menus, Orders, Payments, and Cart management.
 
 ![ERD](docs/erd.png)
-
 
 ## 📂 Project Structure
 
@@ -71,22 +70,21 @@ foodlify-backend/
 
 ### 🧠 Architecture Notes
 
-* **Modular Structure:** Each feature (e.g., `user`) follows a clean separation of concerns:
+- **Modular Structure:** Each feature (e.g., `user`) follows a clean separation of concerns:
+  - `controller` → handles HTTP requests
+  - `service` → business logic
+  - `repository` → database access
+  - `model` → schema definition
+  - `routes` → API routes
+  - `validation` → request validation
 
-  * `controller` → handles HTTP requests
-  * `service` → business logic
-  * `repository` → database access
-  * `model` → schema definition
-  * `routes` → API routes
-  * `validation` → request validation
+- **TypeScript First:** All files use `.ts` with strong typing for scalability and maintainability.
 
-* **TypeScript First:** All files use `.ts` with strong typing for scalability and maintainability.
+- **Centralized Error Handling:** Managed via `error.middleware.ts`.
 
-* **Centralized Error Handling:** Managed via `error.middleware.ts`.
+- **Reusable Utilities:** Common helpers like async handling and API responses are abstracted.
 
-* **Reusable Utilities:** Common helpers like async handling and API responses are abstracted.
-
-* **Environment & Logging:** Configured under `config/` for clean separation.
+- **Environment & Logging:** Configured under `config/` for clean separation.
 
 ---
 
@@ -124,7 +122,7 @@ npm run test
 ### 🐳 Docker
 
 ```bash
-  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d 
+  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 ```
 
 ---
@@ -135,19 +133,19 @@ npm run test
 
 #### 📦 Cart
 
-* `GET    /api/v1/cart` → View cart
-* `DELETE /api/v1/cart` → Clear cart
-* `PUT    /api/v1/cart` → Modify entire cart
+- `GET    /api/v1/cart` → View cart
+- `DELETE /api/v1/cart` → Clear cart
+- `PUT    /api/v1/cart` → Modify entire cart
 
 #### 🛍️ Cart Items
 
-* `POST   /api/v1/cart/items` → Add item to cart
-* `PUT    /api/v1/cart/items/:itemId` → Update quantity
-* `DELETE /api/v1/cart/items/:itemId` → Remove item
+- `POST   /api/v1/cart/items` → Add item to cart
+- `PUT    /api/v1/cart/items/:itemId` → Update quantity
+- `DELETE /api/v1/cart/items/:itemId` → Remove item
 
 #### 💳 Checkout
 
-* `POST   /api/v1/cart/checkout` → Checkout cart
+- `POST   /api/v1/cart/checkout` → Checkout cart
 
 ---
 
@@ -155,33 +153,33 @@ npm run test
 
 #### 👤 Auth
 
-* `POST   /api/v1/auth/signup` → Register user
-* `POST   /api/v1/auth/login` → Login
-* `POST   /api/v1/auth/logout` → Logout
+- `POST   /api/v1/auth/signup` → Register user
+- `POST   /api/v1/auth/login` → Login
+- `POST   /api/v1/auth/logout` → Logout
 
 #### 🔑 Password & Verification
 
-* `POST   /api/v1/auth/forgot-password` → Request password reset
-* `POST   /api/v1/auth/reset-password` → Reset password
-* `POST   /api/v1/auth/verify-otp` → Verify email/SMS OTP
-* `POST   /api/v1/auth/resend-otp` → Resend OTP
+- `POST   /api/v1/auth/forgot-password` → Request password reset
+- `POST   /api/v1/auth/reset-password` → Reset password
+- `POST   /api/v1/auth/verify-otp` → Verify email/SMS OTP
+- `POST   /api/v1/auth/resend-otp` → Resend OTP
 
 #### 🌐 Social Auth
 
-* `POST   /api/v1/auth/social` → Social login
+- `POST   /api/v1/auth/social` → Social login
 
 ---
 
 ## 🎯 Use Cases
 
-* User registers and logs into the platform
-* User browses restaurants and menus
-* User adds items to cart and modifies cart
-* User places an order and tracks delivery
-* Restaurant manages menus and orders
-* Admin monitors system performance and transactions
-* Customer makes payments using multiple methods
-* Customer views order history and manages profile
+- User registers and logs into the platform
+- User browses restaurants and menus
+- User adds items to cart and modifies cart
+- User places an order and tracks delivery
+- Restaurant manages menus and orders
+- Admin monitors system performance and transactions
+- Customer makes payments using multiple methods
+- Customer views order history and manages profile
 
 ---
 
@@ -191,13 +189,13 @@ npm run test
 
 **Functions:**
 
-* Sign up / Login / Logout
-* Forgot password
-* Email/OTP verification
-* Social login
-* Enable/Disable account
-* Role-based access control (Admin, Manager, User)
-* Profile management
+- Sign up / Login / Logout
+- Forgot password
+- Email/OTP verification
+- Social login
+- Enable/Disable account
+- Role-based access control (Admin, Manager, User)
+- Profile management
 
 ---
 
@@ -205,15 +203,15 @@ npm run test
 
 **Functions:**
 
-* Add to cart
-* Modify cart
-* View cart
-* Clear cart
-* Remove item
-* Update quantities
-* Checkout
-* Auto-create cart per user
-* Redis caching + DB persistence
+- Add to cart
+- Modify cart
+- View cart
+- Clear cart
+- Remove item
+- Update quantities
+- Checkout
+- Auto-create cart per user
+- Redis caching + DB persistence
 
 ---
 
@@ -221,13 +219,13 @@ npm run test
 
 **Functions:**
 
-* Add / Update / Enable / Disable restaurant
-* Browse restaurants
-* Search restaurants (filters)
-* Create / Update / Delete menu
-* View menu history
-* Search menu items
-* Top-rated & recommended restaurants
+- Add / Update / Enable / Disable restaurant
+- Browse restaurants
+- Search restaurants (filters)
+- Create / Update / Delete menu
+- View menu history
+- Search menu items
+- Top-rated & recommended restaurants
 
 ---
 
@@ -235,13 +233,13 @@ npm run test
 
 **Functions:**
 
-* Place order
-* Cancel order (customer/restaurant)
-* Order tracking (status updates)
-* Order history (customer & restaurant)
-* Order summary & details
-* Email/SMS confirmation
-* Real-time notifications
+- Place order
+- Cancel order (customer/restaurant)
+- Order tracking (status updates)
+- Order history (customer & restaurant)
+- Order summary & details
+- Email/SMS confirmation
+- Real-time notifications
 
 ---
 
@@ -249,13 +247,13 @@ npm run test
 
 **Functions:**
 
-* Manage profile
-* Address management (multiple addresses)
-* Preferred payment settings
-* Order history access
-* Ratings & reviews
-* Customer support (chat)
-* Account deactivation
+- Manage profile
+- Address management (multiple addresses)
+- Preferred payment settings
+- Order history access
+- Ratings & reviews
+- Customer support (chat)
+- Account deactivation
 
 ---
 
@@ -263,14 +261,14 @@ npm run test
 
 **Functions:**
 
-* Third-party payment integration
-* Multiple payment methods
-* Payment verification & validation
-* Transaction tracking
-* Refund handling
-* Payment status tracking
-* Generate receipts
-* Auditing & logging
+- Third-party payment integration
+- Multiple payment methods
+- Payment verification & validation
+- Transaction tracking
+- Refund handling
+- Payment status tracking
+- Generate receipts
+- Auditing & logging
 
 ---
 
@@ -278,11 +276,11 @@ npm run test
 
 **Functions:**
 
-* Count restaurants & customers
-* Track orders (daily/total/cancelled)
-* Monitor transactions (daily/total)
-* Generate reports (daily/monthly)
-* Restaurant-specific analytics
+- Count restaurants & customers
+- Track orders (daily/total/cancelled)
+- Monitor transactions (daily/total)
+- Generate reports (daily/monthly)
+- Restaurant-specific analytics
 
 ---
 
@@ -290,15 +288,15 @@ npm run test
 
 **Functions:**
 
-* Apply discount codes
-* Manage offers
-* Recommend items
+- Apply discount codes
+- Manage offers
+- Recommend items
 
 ---
 
 ## 📈 Future Improvements
 
-* AI-based food recommendations
-* Advanced analytics dashboard
-* Multi-language support
-* Delivery tracking with maps
+- AI-based food recommendations
+- Advanced analytics dashboard
+- Multi-language support
+- Delivery tracking with maps

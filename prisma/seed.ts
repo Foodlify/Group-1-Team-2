@@ -8,58 +8,53 @@ async function main() {
 
   const passwordHash = await bcrypt.hash("password123", 10);
 
-  // Users
-  await prisma.user.createMany({
-    data: [
-      {
-        id: 1,
-        name: "John Doe",
-        email: "john@test.com",
-        password: passwordHash,
-        role: "CUSTOMER",
-        phone: "01154467412",
-      },
-      {
-        id: 2,
-        name: "Jane Doe",
-        email: "jane@test.com",
-        password: passwordHash,
-        role: "CUSTOMER",
-        phone: "01094977673",
-      },
-      {
-        id: 3,
-        name: "Restaurant Owner",
-        email: "owner@test.com",
-        password: passwordHash,
-        role: "OWNER",
-        phone: "01012345678",
-      },
-    ],
-    skipDuplicates: true,
+  // Users — بنستخدم create مش createMany عشان نمسك الـ id اللي اتولد (uuid)
+  const john = await prisma.user.create({
+    data: {
+      name: "John Doe",
+      email: "john@test.com",
+      password: passwordHash,
+      role: "CUSTOMER",
+      phone: "01154467412",
+    },
   });
 
-  // Customers
+  const jane = await prisma.user.create({
+    data: {
+      name: "Jane Doe",
+      email: "jane@test.com",
+      password: passwordHash,
+      role: "CUSTOMER",
+      phone: "01094977673",
+    },
+  });
+
+  const ownerUser = await prisma.user.create({
+    data: {
+      name: "Restaurant Owner",
+      email: "owner@test.com",
+      password: passwordHash,
+      role: "OWNER",
+      phone: "01012345678",
+    },
+  });
+
+  // Customers — userId دلوقتي بياخد الـ uuid الحقيقي اللي اتولد فوق
   await prisma.customer.createMany({
     data: [
-      { id: 1, userId: 1 },
-      { id: 2, userId: 2 },
+      { id: 1, userId: john.id },
+      { id: 2, userId: jane.id },
     ],
     skipDuplicates: true,
   });
 
   // Owner
   await prisma.owner.createMany({
-    data: [
-      {
-        id: 1,
-        userId: 3,
-      },
-    ],
+    data: [{ id: 1, userId: ownerUser.id }],
     skipDuplicates: true,
   });
 
-  // Restaurant
+  // Restaurant — Owner.id لسه Int زي ما هو، فمحتاجش أي تغيير هنا
   await prisma.restaurant.upsert({
     where: { id: 1 },
     update: {},
@@ -67,7 +62,7 @@ async function main() {
       id: 1,
       name: "Foodlify",
       ownerId: 1,
-    }as any,
+    },
   });
 
   // Menu
@@ -93,18 +88,8 @@ async function main() {
   // Carts
   await prisma.cart.createMany({
     data: [
-      {
-        id: 1,
-        customerId: 1,
-        restaurantId: 1,
-        status: "ACTIVE",
-      },
-      {
-        id: 2,
-        customerId: 2,
-        restaurantId: 1,
-        status: "ACTIVE",
-      },
+      { id: 1, customerId: 1, restaurantId: 1, status: "ACTIVE" },
+      { id: 2, customerId: 2, restaurantId: 1, status: "ACTIVE" },
     ],
     skipDuplicates: true,
   });

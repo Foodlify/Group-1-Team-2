@@ -10,12 +10,12 @@ export class validateAddressHandler extends OrderHandler{
         const client = request.tx ?? prisma
 
         const address = await addressRepo.getAddressById(request.addressId,client);
-
         if(!address){
             throw new AddressNotFoundOrNotOwnedException();
-        }
+          }
+        response.addressId = address.id;
 
-            return this.handleNext(request, response);
+        return this.handleNext(request, response);
 
     }
 
