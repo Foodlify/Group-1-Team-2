@@ -5,8 +5,10 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import * as menuService from "./menu.services";
 
 export const createMenu = asyncHandler(async (req: Request, res: Response) => {
+
   const restaurantId = Number(req.params.restaurantId);
-  const menu = await menuService.createMenu(restaurantId);
+  const userId = Number(req.userId);
+  const menu = await menuService.createMenu(restaurantId, userId);
 
   sendSucess(res, {
     message: "Menu created successfully",
@@ -17,6 +19,7 @@ export const createMenu = asyncHandler(async (req: Request, res: Response) => {
 
 export const getMenus = asyncHandler(async (req: Request, res: Response) => {
     const restaurantId = Number(req.params.restaurantId);
+    
     const menus = await menuService.getMenus(restaurantId);
 
     sendSucess(res, {
@@ -42,7 +45,8 @@ export const getMenu = asyncHandler(async (req: Request, res: Response) => {
 export const deleteMenu = asyncHandler(async (req: Request, res: Response) => {
     const restaurantId = Number(req.params.restaurantId);
     const menuId = Number(req.params.menuId);
-    await menuService.deleteMenu(restaurantId, menuId);
+    const userId = Number(req.userId);
+    await menuService.deleteMenu(restaurantId, menuId, userId);
     sendSucess(res, {
       message: "Menu deleted successfully",
       statusCode: StatusCodes.OK,

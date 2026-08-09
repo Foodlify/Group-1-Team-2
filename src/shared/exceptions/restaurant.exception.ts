@@ -7,3 +7,11 @@ export class RestaurantNotFoundException extends  Error {
       this.name = "RestaurantNotFoundException";
     }
 }
+
+export class NOTALLOWEDTOCREATEMORETHANONE extends Error {
+    public statusCode = StatusCodes.CONFLICT;
+    constructor(){
+      super("Admin can only create one restaurant");
+      this.name = "NOTALLOWEDTOCREATEMORETHANONE";
+    }
+}

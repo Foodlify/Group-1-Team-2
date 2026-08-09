@@ -7,14 +7,17 @@ import {DBClient} from "../../types/PrismaClientOrTx"
 
 export const createMenuItem = async(menuId: number, itemName: string , price: number, stock: number) => {
 
+    await checkIfUserAdminInRestaurant(restaurantId, userId)
     await findMenuById(menuId);
    
     const menuItem = await menuItemRepository.createMenuItem(menuId, itemName, price, stock);
 
-    return menuItem;
+    cache.del(CacheKeys.restaurant(restaurantId));
+
+   return toMenuItemDto (menuItem);
 }
 
-export const getMenuItemById = async (menuItemId: number, menuId: number) => {
+export const getMenuItemById = async (menuItemId: number, menuId: number):Promise<MenuItemResponseDto> => {
     await findMenuById(menuId);
     const menuItem = await menuItemRepository.getMenuItemById(menuItemId, menuId);
 
@@ -22,34 +25,38 @@ export const getMenuItemById = async (menuItemId: number, menuId: number) => {
         throw new MenuItemNotFoundException(menuItemId);
     }
 
-    return menuItem;
+    return toMenuItemDto(menuItem)
 };
 
-export const getMenuItemsByMenuId = async (menuId: number) => {
+export const getMenuItemsByMenuId = async (menuId: number):Promise<MenuItemResponseDto[]> => {
+    
     await findMenuById(menuId);
 
     const menuItems = await menuItemRepository.getMenuItemsByMenuId(menuId);
 
-    if (!menuItems) {
-        throw new MenuItemNotFoundException(menuId);
-    }
-
-    return menuItems;
+    return menuItems.map(toMenuItemDto);
 
 };
 
-export const updateMenuItem = async (menuId: number, menuItemId: number , data: UpdateMenuItem) => {
+export const updateMenuItem = async (restaurantId: number, userId: number, menuId: number, menuItemId: number , data: UpdateMenuItem):Promise<MenuItemResponseDto> => {
+
+    await checkIfUserAdminInRestaurant(restaurantId, userId)
+
     await findMenuById(menuId);
 
     await getMenuItemById(menuItemId, menuId);
 
     const menuItem = await menuItemRepository.updateMenuItem(menuId, menuItemId, data);
-   
-    return menuItem;
+
+    cache.del(CacheKeys.restaurant(restaurantId));
     
+    return toMenuItemDto(menuItem)
 };
 
-export const deleteMenuItem = async (menuId: number, menuItemId: number) => {
+export const deleteMenuItem = async (restaurantId: number, userId: number, menuId: number, menuItemId: number): Promise<void> => {
+
+    await checkIfUserAdminInRestaurant(restaurantId, userId);
+
     await findMenuById(menuId);
     
     await getMenuItemById(menuItemId, menuId);
